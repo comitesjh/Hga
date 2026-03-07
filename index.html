@@ -2,100 +2,534 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Win 7+10 Hybrid</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Win 7+10 Hybrid OS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body {
+            height: 100vh;
+            width: 100vw;
+            background: url('https://images.wallpapersden.com/image/download/windows-10-original-4k_am5lW2aUmZqaraWkpJRmbmdlrWZlbWU.jpg') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Barra de Tarefas - Estilo Win 10 com Vidro do Win 7 */
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .start-button {
+            width: 45px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .start-button:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .start-icon {
+            width: 20px;
+            height: 20px;
+            filter: drop-shadow(0 0 5px #00adef);
+        }
+
+        /* Ícones do Desktop */
+        .desktop {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 80px);
+            grid-template-rows: repeat(auto-fill, 90px);
+            grid-flow: column;
+            gap: 15px;
+            height: calc(100vh - 40px);
+        }
+
+        .icon {
+            width: 80px;
+            height: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            text-shadow: 1px 1px 3px black;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 3px;
+        }
+
+        .icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .icon img { width: 40px; margin-bottom: 5px; }
+        .icon span { font-size: 12px; }
+
+        /* Janelas Estilo Aero */
+        .window {
+            position: absolute;
+            width: 600px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none; /* Escondido inicialmente */
+            flex-direction: column;
+            overflow: hidden;
+            resize: both;
+        }
+
+        .window-header {
+            background: rgba(220, 220, 220, 0.8);
+            backdrop-filter: blur(5px);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .window-controls { display: flex; gap: 10px; }
+        .control { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
+        .close { background: #ff5f56; }
+        .min { background: #ffbd2e; }
+        .max { background: #27c93f; }
+
+        .window-content { flex-grow: 1; padding: 0; background: white; }
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
 </head>
 <body>
 
-    <div id="desktop">
-        <div class="icon" onclick="openApp('folder')">📂<span>Documentos</span></div>
-        <div class="icon" onclick="openApp('browser')">🌐<span>Navegador</span></div>
-        
-        <div id="window-browser" class="window" style="display:none;">
-            <div class="window-header">
-                <span>Navegador Web</span>
-                <button onclick="closeApp('browser')">X</button>
-            </div>
-            <div class="window-content">
-                <iframe src="https://www.bing.com" style="width:100%; height:100%; border:none;"></iframe>
-            </div>
+<div class="desktop" id="desktop">
+    <div class="icon" onclick="openWindow('myComputer')">
+        <img src="https://cdn-icons-png.flaticon.com/512/220/220966.png" alt="PC">
+        <span>Meu Computador</span>
+    </div>
+    <div class="icon" onclick="openWindow('browser')">
+        <img src="https://cdn-icons-png.flaticon.com/512/888/888846.png" alt="Chrome">
+        <span>Google Chrome</span>
+    </div>
+    <div class="icon" onclick="openWindow('settings')">
+        <img src="https://cdn-icons-png.flaticon.com/512/2040/2040504.png" alt="Settings">
+        <span>Configurações</span>
+    </div>
+</div>
+
+<div class="taskbar">
+    <div class="start-button" id="startBtn">
+        <img class="start-icon" src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_logo_-_2012.svg" alt="Start">
+    </div>
+    <div id="running-apps"></div>
+</div>
+<div id="startMenu" style="position:absolute; bottom:40px; left:0; width:300px; height:450px; background:rgba(20, 20, 20, 0.9); backdrop-filter:blur(15px); border:1px solid rgba(255,255,255,0.1); display:none; flex-direction:column; z-index:999; color:white; border-radius: 0 5px 0 0;">
+    <div style="padding:20px; flex-grow:1;">
+        <p style="font-size:12px; opacity:0.6; margin-bottom:10px;">Adicionados recentemente</p>
+        <div class="start-item" onclick="openWindow('youtube')" style="display:flex; align-items:center; gap:10px; padding:10px; cursor:pointer;">
+            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="24"> YouTube
+        </div>
+        <div class="start-item" onclick="openWindow('calc')" style="display:flex; align-items:center; gap:10px; padding:10px; cursor:pointer;">
+            <img src="https://cdn-icons-png.flaticon.com/512/2344/2344132.png" width="24"> Calculadora
         </div>
     </div>
-
-    <div id="taskbar">
-        <button id="start-btn">🏁</button>
-        <div class="running-apps"></div>
-        <div id="clock">00:00</div>
+    <div style="background:rgba(0,0,0,0.3); padding:10px; display:flex; justify-content:space-between; align-items:center;">
+        <span>Usuário Convidado</span>
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828445.png" width="18" style="cursor:pointer;" onclick="location.reload()">
     </div>
+</div>
 
-    <script src="script.js"></script>
-body {
-    margin: 0;
-    background: url('https://bit.ly/3yL8pW9') no-repeat center center fixed;
-    background-size: cover;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    overflow: hidden;
-}
+<div id="windowTemplate" class="window" style="z-index: 10;">
+    <div class="window-header" onmousedown="dragStart(event, this.parentNode)">
+        <span class="window-title">Aplicativo</span>
+        <div class="window-controls">
+            <div class="control min"></div>
+            <div class="control max"></div>
+            <div class="control close" onclick="closeWindow(this.parentNode.parentNode.parentNode)"></div>
+        </div>
+    </div>
+    <div class="window-content">
+        <iframe id="winIframe" src=""></iframe>
+    </div>
+</div>
 
-#desktop {
-    width: 100vw;
-    height: calc(100vh - 40px);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
+<script>
+    // Lógica do Menu Iniciar
+    const startBtn = document.getElementById('startBtn');
+    const startMenu = document.getElementById('startMenu');
+    
+    startBtn.onclick = (e) => {
+        e.stopPropagation();
+        startMenu.style.display = startMenu.style.display === 'flex' ? 'none' : 'flex';
+    };
 
-.window {
-    position: absolute;
-    width: 600px;
-    height: 400px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid #999;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    border-radius: 8px 8px 0 0;
-}
+    document.onclick = () => startMenu.style.display = 'none';
+    startMenu.onclick = (e) => e.stopPropagation();
 
-.window-header {
-    background: rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    cursor: move;
-}
+    // Sistema de Janelas
+    function openWindow(type) {
+        const desktop = document.getElementById('desktop');
+        const win = document.getElementById('windowTemplate').cloneNode(true);
+        win.id = 'window_' + Math.random().toString(36).substr(2, 9);
+        win.style.display = 'flex';
+        win.style.top = '100px';
+        win.style.left = '150px';
+        
+        const title = win.querySelector('.window-title');
+        const iframe = win.querySelector('iframe');
 
-#taskbar {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 40px;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    align-items: center;
-    color: white;
-}
-// Função para abrir apps
-function openApp(id) {
-    const win = document.getElementById('window-' + id);
-    if(win) win.style.display = 'block';
-}
+        if(type === 'browser') {
+            title.innerText = 'Google Chrome';
+            iframe.src = 'https://www.google.com/search?guice_referrer=aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8&guice_referrer_sig=AQAAAFX'; 
+        } else if(type === 'youtube') {
+            title.innerText = 'YouTube';
+            iframe.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ'; // Exemplo de embed
+        } else if(type === 'myComputer') {
+            title.innerText = 'Meu Computador';
+            win.querySelector('.window-content').innerHTML = '<div style="padding:20px;"><h3>Disco Local (C:)</h3><p>Espaço livre: 450GB / 500GB</p></div>';
+        } else if(type === 'settings') {
+            title.innerText = 'Configurações';
+            win.querySelector('.window-content').innerHTML = `
+                <div style="padding:20px;">
+                    <h4>Trocar Fundo de Tela (URL):</h4>
+                    <input type="text" id="bgInput" style="width:100%; padding:5px; margin:10px 0;">
+                    <button onclick="changeBg()" style="padding:5px 15px; cursor:pointer;">Aplicar</button>
+                </div>`;
+        }
 
-// Fechar apps
-function closeApp(id) {
-    document.getElementById('window-' + id).style.display = 'none';
-}
+        document.body.appendChild(win);
+    }
 
-// Trocar Papel de Parede (Exemplo rápido)
-function changeWallpaper(url) {
-    document.body.style.backgroundImage = `url('${url}')`;
-}
+    function closeWindow(el) { el.remove(); }
 
-// Relógio em tempo real
-setInterval(() => {
-    const now = new Date();
-    document.getElementById('clock').innerText = now.toLocaleTimeString();
-}, 1000);
+    function changeBg() {
+        const url = document.getElementById('bgInput').value;
+        if(url) document.body.style.backgroundImage = `url('${url}')`;
+    }
 
-</body>
-</html>
+    // Drag and Drop (Arrastar Janelas)
+    let activeWin = null;
+    let offset = [0,0];
+
+    function dragStart(e, win) {
+        activeWin = win;
+        offset = [win.offsetLeft - e.clientX, win.offsetTop - e.clientY];
+        win.style.zIndex = 100;
+    }
+
+    document.onmousemove = (e) => {
+        if (activeWin) {
+            activeWin.style.left = (e.clientX + offset[0]) + 'px';
+            activeWin.style.top = (e.clientY + offset[1]) + 'px';
+        }
+    };
+
+    document.onmouseup = () => activeWin = null;
+</script>
+<style>
+    /* Estilos Adicionais para a Parte 3 */
+    .tray {
+        position: absolute;
+        right: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        color: white;
+        font-size: 12px;
+        gap: 10px;
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .folder-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 70px);
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .folder-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        text-align: center;
+        font-size: 11px;
+    }
+
+    .folder-item img { width: 35px; }
+
+    /* Estilo do Jogo Snake */
+    #snakeCanvas {
+        background: #000;
+        display: block;
+        margin: auto;
+    }
+</style>
+
+<script>
+    const taskbar = document.querySelector('.taskbar');
+    const tray = document.createElement('div');
+    tray.className = 'tray';
+    tray.id = 'clock-tray';
+    taskbar.appendChild(tray);
+
+    function updateClock() {
+        const now = new Date();
+        const time = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const date = now.toLocaleDateString();
+        tray.innerHTML = `<div style="text-align:right">${time}<br>${date}</div>`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Adicionando a Pasta "Documentos" no Desktop
+    const desktop = document.getElementById('desktop');
+    const docsIcon = document.createElement('div');
+    docsIcon.className = 'icon';
+    docsIcon.onclick = () => openWindow('documents');
+    docsIcon.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3767/3767084.png"><span>Documentos</span>`;
+    desktop.appendChild(docsIcon);
+
+    // Adicionando o Ícone do Jogo Snake
+    const gameIcon = document.createElement('div');
+    gameIcon.className = 'icon';
+    gameIcon.onclick = () => openWindow('snake');
+    gameIcon.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/528/528105.png"><span>Snake Game</span>`;
+    desktop.appendChild(gameIcon);
+
+    // Atualização da função openWindow para novos Apps
+    const originalOpenWindow = openWindow;
+    openWindow = function(type) {
+        if (type === 'documents') {
+            const win = createWinStructure('Documentos');
+            win.querySelector('.window-content').innerHTML = `
+                <div class="folder-grid">
+                    <div class="folder-item"><img src="https://cdn-icons-png.flaticon.com/512/337/337946.png"><span>Trabalho.pdf</span></div>
+                    <div class="folder-item"><img src="https://cdn-icons-png.flaticon.com/512/337/337948.png"><span>Foto_Praia.jpg</span></div>
+                    <div class="folder-item"><img src="https://cdn-icons-png.flaticon.com/512/337/337932.png"><span>Notas.txt</span></div>
+                </div>`;
+            document.body.appendChild(win);
+        } else if (type === 'snake') {
+            const win = createWinStructure('Snake Classic');
+            win.querySelector('.window-content').innerHTML = `
+                <div style="background:#222; height:100%; color:lime; text-align:center;">
+                    <p>Use as setas do teclado</p>
+                    <canvas id="snakeCanvas" width="300" height="300" style="border:2px solid #555; margin-top:10px;"></canvas>
+                </div>`;
+            document.body.appendChild(win);
+            startSnakeGame(); // Inicia a lógica do jogo
+        } else {
+            originalOpenWindow(type);
+        }
+    };
+
+    // Helper para criar estrutura de janela sem repetir código
+    function createWinStructure(title) {
+        const win = document.getElementById('windowTemplate').cloneNode(true);
+        win.id = 'window_' + Math.random().toString(36).substr(2, 9);
+        win.style.display = 'flex';
+        win.style.top = (50 + Math.random()*50) + 'px';
+        win.style.left = (100 + Math.random()*100) + 'px';
+        win.querySelector('.window-title').innerText = title;
+        return win;
+    }
+
+    // Lógica simples do Jogo Snake
+    function startSnakeGame() {
+        const canvas = document.getElementById("snakeCanvas");
+        if(!canvas) return;
+        const ctx = canvas.getContext("2d");
+        let box = 15; let snake = [{x: 9 * box, y: 10 * box}];
+        let food = { x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box };
+        let d;
+        document.addEventListener("keydown", e => {
+            if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
+            else if(e.keyCode == 38 && d != "DOWN") d = "UP";
+            else if(e.keyCode == 39 && d != "LEFT") d = "RIGHT";
+            else if(e.keyCode == 40 && d != "UP") d = "DOWN";
+        });
+        function draw() {
+            ctx.fillStyle = "black"; ctx.fillRect(0,0,300,300);
+            for(let i=0; i<snake.length; i++){
+                ctx.fillStyle = (i==0)? "green":"lime"; ctx.fillRect(snake[i].x, snake[i].y, box, box);
+            }
+            ctx.fillStyle = "red"; ctx.fillRect(food.x, food.y, box, box);
+            let snakeX = snake[0].x; let snakeY = snake[0].y;
+            if(d == "LEFT") snakeX -= box; if(d == "UP") snakeY -= box;
+            if(d == "RIGHT") snakeX += box; if(d == "DOWN") snakeY += box;
+            if(snakeX == food.x && snakeY == food.y) {
+                food = { x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box };
+            } else { snake.pop(); }
+            let newHead = {x: snakeX, y: snakeY}; snake.unshift(newHead);
+        }
+        let game = setInterval(draw, 100);
+    }
+</script>
+<style>
+    /* Estilos do Bloco de Notas */
+    .notepad-textarea {
+        width: 100%;
+        height: 100%;
+        border: none;
+        padding: 10px;
+        resize: none;
+        outline: none;
+        font-family: 'Consolas', monospace;
+        font-size: 14px;
+    }
+
+    /* Estilo do Reprodutor de Música */
+    .music-player {
+        background: #1e1e1e;
+        color: white;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .music-controls button {
+        background: #0078d7;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    /* Destaque da Janela Ativa */
+    .window-active {
+        box-shadow: 0 15px 40px rgba(0,0,0,0.7) !important;
+        border: 1px solid rgba(0, 120, 215, 0.5);
+    }
+</style>
+
+<script>
+    let highestZ = 100;
+
+    // Adicionando Bloco de Notas ao Desktop
+    const notepadIcon = document.createElement('div');
+    notepadIcon.className = 'icon';
+    notepadIcon.onclick = () => openWindow('notepad');
+    notepadIcon.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3745/3745301.png"><span>Bloco de Notas</span>`;
+    document.getElementById('desktop').appendChild(notepadIcon);
+
+    // Adicionando Player de Música ao Desktop
+    const musicIcon = document.createElement('div');
+    musicIcon.className = 'icon';
+    musicIcon.onclick = () => openWindow('music');
+    musicIcon.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/461/461238.png"><span>Música</span>`;
+    document.getElementById('desktop').appendChild(musicIcon);
+
+    // Sobrescrevendo a lógica de openWindow para incluir novos Apps
+    const prevOpenWindow = openWindow;
+    openWindow = function(type) {
+        if (type === 'notepad') {
+            const win = createWinStructure('Bloco de Notas - Sem Título');
+            win.querySelector('.window-content').innerHTML = `<textarea class="notepad-textarea" placeholder="Digite seu texto aqui..."></textarea>`;
+            makeActive(win);
+            document.body.appendChild(win);
+        } else if (type === 'music') {
+            const win = createWinStructure('Media Player');
+            win.querySelector('.window-content').innerHTML = `
+                <div class="music-player">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3043/3043665.png" width="80" style="margin-bottom:10px;">
+                    <p id="trackName">Lo-fi Chill Beats</p>
+                    <div class="music-controls">
+                        <button onclick="alert('Tocando...')">▶ Play</button>
+                        <button onclick="alert('Pausado')">⏸ Pause</button>
+                    </div>
+                    <audio id="bgAudio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+                </div>`;
+            makeActive(win);
+            document.body.appendChild(win);
+        } else {
+            prevOpenWindow(type);
+        }
+    };
+
+    // Função para trazer a janela para frente ao clicar
+    function makeActive(win) {
+        win.style.zIndex = ++highestZ;
+        document.querySelectorAll('.window').forEach(w => w.classList.remove('window-active'));
+        win.classList.add('window-active');
+    }
+
+    // Adicionando evento de clique em todas as janelas para focar
+    document.addEventListener('mousedown', (e) => {
+        const win = e.target.closest('.window');
+        if (win) makeActive(win);
+    });
+
+    // Função para arrastar melhorada
+    function dragStart(e, win) {
+        activeWin = win;
+        makeActive(win);
+        offset = [win.offsetLeft - e.clientX, win.offsetTop - e.clientY];
+    }
+</script>
+<style>
+    /* Estilo do CMD */
+    .cmd-body {
+        background: black;
+        color: #00ff00;
+        font-family: 'Consolas', monospace;
+        padding: 10px;
+        height: 100%;
+        overflow-y: auto;
+    }
+    .cmd-input {
+        background: transparent;
+        border: none;
+        color: #00ff00;
+        width: 100%;
+        outline: none;
+    }
+</style>
+
+<script>
+    // --- SISTEMA DE PERSISTÊNCIA (SAVE STATE) ---
+    function saveSystemState() {
+        const state = {
+            background: document.body.style.backgroundImage,
+            windows: []
+        };
+        document.querySelectorAll('.window').forEach(win => {
+            if(win.id !== 'windowTemplate' && win.style.display !== 'none') {
+                state.windows.push({
+                    id: win.id,
+                    title: win.querySelector('.window-title').innerText,
+                    top: win.style.top,
+                    left: win.style.left,
+                    width: win.style.width,
+                    height: win.style.height,
+                    content: win.querySelector('.window-content').innerHTML
+                });
+            }
+        });
+        localStorage.setItem('winOS_state', JSON.stringify(state));
+    }
+
+    function loadSystemState() {
+     
