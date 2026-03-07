@@ -31,3 +31,71 @@
     <script src="script.js"></script>
 </body>
 </html>
+body {
+    margin: 0;
+    background: url('https://bit.ly/3yL8pW9') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    overflow: hidden;
+}
+
+#desktop {
+    width: 100vw;
+    height: calc(100vh - 40px);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.window {
+    position: absolute;
+    width: 600px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid #999;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border-radius: 8px 8px 0 0;
+}
+
+.window-header {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    cursor: move;
+}
+
+#taskbar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    color: white;
+}
+// Função para abrir apps
+function openApp(id) {
+    const win = document.getElementById('window-' + id);
+    if(win) win.style.display = 'block';
+}
+
+// Fechar apps
+function closeApp(id) {
+    document.getElementById('window-' + id).style.display = 'none';
+}
+
+// Trocar Papel de Parede (Exemplo rápido)
+function changeWallpaper(url) {
+    document.body.style.backgroundImage = `url('${url}')`;
+}
+
+// Relógio em tempo real
+setInterval(() => {
+    const now = new Date();
+    document.getElementById('clock').innerText = now.toLocaleTimeString();
+}, 1000);
+
