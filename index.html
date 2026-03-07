@@ -1,129 +1,158 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Meu ChatGPT</title>
+    <meta charset="UTF-8">
+    <title>Windows 7 HTML Edition</title>
+    <style>
+        :root {
+            --win-blue: rgba(0, 102, 204, 0.7);
+            --taskbar-bg: rgba(20, 40, 60, 0.8);
+        }
 
-<style>
-body{
-font-family: Arial;
-background:#0f172a;
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-margin:0;
-}
+        body, html {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://wallpaperaccess.com/full/1325175.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
 
-#chat{
-width:500px;
-height:600px;
-background:#1e293b;
-border-radius:10px;
-display:flex;
-flex-direction:column;
-}
+        /* Desktop Area */
+        #desktop {
+            width: 100vw;
+            height: calc(100vh - 40px);
+            position: relative;
+        }
 
-#messages{
-flex:1;
-padding:15px;
-overflow-y:auto;
-}
+        /* Taskbar */
+        #taskbar {
+            height: 40px;
+            background: var(--taskbar-bg);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            z-index: 9999;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
 
-.message{
-margin:10px 0;
-}
+        #start-button {
+            width: 35px;
+            height: 35px;
+            background: radial-gradient(circle, #5cb85c 0%, #0275d8 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px #fff;
+            transition: transform 0.2s;
+        }
 
-.user{
-text-align:right;
-color:#38bdf8;
-}
+        #start-button:hover { transform: scale(1.1); }
 
-.bot{
-text-align:left;
-color:#22c55e;
-}
+        /* Window Style */
+        .window {
+            position: absolute;
+            width: 400px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 5px 5px 0 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.4);
+            display: none;
+            flex-direction: column;
+        }
 
-#inputArea{
-display:flex;
-border-top:1px solid #334155;
-}
+        .window-header {
+            padding: 8px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(200,200,200,0.3));
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+        }
 
-input{
-flex:1;
-padding:10px;
-border:none;
-outline:none;
-background:#0f172a;
-color:white;
-}
+        .window-body {
+            flex-grow: 1;
+            padding: 10px;
+            overflow: auto;
+        }
 
-button{
-padding:10px 20px;
-border:none;
-background:#38bdf8;
-color:white;
-cursor:pointer;
-}
-</style>
+        .close-btn { color: red; cursor: pointer; font-weight: bold; }
+
+        /* Desktop Icons */
+        .icon {
+            width: 70px;
+            text-align: center;
+            color: white;
+            margin: 20px;
+            cursor: pointer;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .icon img { width: 45px; display: block; margin: 0 auto; }
+    </style>
 </head>
-
 <body>
 
-<div id="chat">
+<div id="desktop">
+    <div class="icon" onclick="openWindow('folder-win')">
+        <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png" alt="Pasta">
+        <span>Documentos</span>
+    </div>
 
-<div id="messages"></div>
-
-<div id="inputArea">
-<input id="userInput" placeholder="Digite sua mensagem...">
-<button onclick="sendMessage()">Enviar</button>
+    <div id="folder-win" class="window" style="top: 100px; left: 100px;">
+        <div class="window-header">
+            <span>📁 Meus Documentos</span>
+            <span class="close-btn" onclick="closeWindow('folder-win')">X</span>
+        </div>
+        <div class="window-body">
+            <ul>
+                <li>foto_ferias.jpg</li>
+                <li>trabalho_escola.docx</li>
+                <li>receitas.txt</li>
+            </ul>
+        </div>
+    </div>
 </div>
 
+<div id="taskbar">
+    <div id="start-button" onclick="toggleStartMenu()"></div>
 </div>
 
 <script>
+    function openWindow(id) {
+        document.getElementById(id).style.display = 'flex';
+    }
 
-function sendMessage(){
+    function closeWindow(id) {
+        document.getElementById(id).style.display = 'none';
+    }
 
-let input = document.getElementById("userInput")
-let msg = input.value
+    // Tornar janelas arrastáveis (Simplificado)
+    const windows = document.querySelectorAll('.window');
+    windows.forEach(win => {
+        const header = win.querySelector('.window-header');
+        header.onmousedown = function(e) {
+            let shiftX = e.clientX - win.getBoundingClientRect().left;
+            let shiftY = e.clientY - win.getBoundingClientRect().top;
 
-if(msg === "") return
+            function moveAt(pageX, pageY) {
+                win.style.left = pageX - shiftX + 'px';
+                win.style.top = pageY - shiftY + 'px';
+            }
 
-addMessage(msg,"user")
-
-input.value=""
-
-setTimeout(()=>{
-let response = botReply(msg)
-addMessage(response,"bot")
-},500)
-
-}
-
-function addMessage(text,type){
-
-let div = document.createElement("div")
-div.className="message "+type
-div.innerText=text
-
-document.getElementById("messages").appendChild(div)
-
-}
-
-function botReply(msg){
-
-msg = msg.toLowerCase()
-
-if(msg.includes("oi")) return "Olá! 👋"
-if(msg.includes("como você está")) return "Estou funcionando perfeitamente!"
-if(msg.includes("seu nome")) return "Sou um mini ChatGPT feito em HTML."
-
-return "Ainda estou aprendendo 🤖"
-
-}
-
+            function onMouseMove(e) { moveAt(e.clientX, e.clientY); }
+            document.addEventListener('mousemove', onMouseMove);
+            win.onmouseup = function() {
+                document.removeEventListener('mousemove', onMouseMove);
+                win.onmouseup = null;
+            };
+        };
+    });
 </script>
 
 </body>
