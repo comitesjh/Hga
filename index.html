@@ -2,233 +2,156 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Clone Pro - 2026</title>
+    <title>Poppy Playtime Cap 6 - Intro Interface</title>
     <style>
-        :root {
-            --yt-red: #ff0000;
-            --yt-black: #0f0f0f;
-            --yt-gray: #272727;
-            --yt-white: #ffffff;
-            --yt-text-gray: #aaaaaa;
-        }
-
         body {
-            background-color: var(--yt-black);
-            color: var(--yt-white);
-            font-family: "Roboto", Arial, sans-serif;
             margin: 0;
+            padding: 0;
+            background-color: #050505;
+            color: #ff0000;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
         }
 
-        /* Header */
-        header {
-            background-color: var(--yt-black);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        /* Efeito de Scanline (TV Antiga) */
+        .crt-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            z-index: 10;
+            pointer-events: none;
         }
 
-        .search-bar {
-            display: flex;
-            flex: 0 1 600px;
-        }
-
-        input {
-            width: 100%;
-            background-color: #121212;
-            border: 1px solid var(--yt-gray);
-            color: white;
-            padding: 10px;
-            border-radius: 20px 0 0 20px;
-            outline: none;
-        }
-
-        button#search-btn {
-            background-color: var(--yt-gray);
-            border: none;
-            color: white;
-            padding: 0 20px;
-            border-radius: 0 20px 20px 0;
-            cursor: pointer;
-        }
-
-        /* Layout Principal */
-        main {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* Player Section */
-        #player-container {
-            flex: 3;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .video-wrapper {
+        #game-container {
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
-            height: 0;
-            background: #000;
-        }
-
-        .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Sidebar / Lista de Vídeos */
-        #sidebar {
-            flex: 1;
-            padding: 20px;
-            border-left: 1px solid var(--yt-gray);
-            overflow-y: auto;
-        }
-
-        .video-item {
+            width: 80%;
+            height: 80%;
+            border: 2px solid #333;
+            background: radial-gradient(circle, #1a0000 0%, #000 100%);
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: background 0.2s;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 0 50px #ff000033;
         }
 
-        .video-item:hover { background: var(--yt-gray); }
-
-        .thumbnail {
-            width: 120px;
-            height: 68px;
-            background-size: cover;
-            border-radius: 8px;
-        }
-
-        .video-info h4 {
-            margin: 0;
-            font-size: 14px;
-            line-height: 1.2;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .video-info p {
+        /* HUD do GrabPack */
+        .hud-status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
             font-size: 12px;
-            color: var(--yt-text-gray);
-            margin: 5px 0;
+            text-align: left;
+            opacity: 0.7;
+        }
+
+        #subtitles {
+            position: absolute;
+            bottom: 10%;
+            width: 80%;
+            font-size: 1.5rem;
+            color: #fff;
+            text-shadow: 2px 2px 4px #000;
+            min-height: 3em;
+        }
+
+        .doctor-glitch {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #555;
+            animation: glitch 0.2s infinite;
+            display: none;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(2px, 0); opacity: 0.8; }
+            50% { transform: translate(-2px, -2px); opacity: 1; color: #fff; }
+            100% { transform: translate(1px, 2px); opacity: 0.7; }
+        }
+
+        button {
+            background: none;
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #ff0000;
+            color: #000;
         }
     </style>
 </head>
 <body>
 
-<header>
-    <div style="font-weight: bold; font-size: 20px; color: var(--yt-red);">YouTube<span style="color:white">Clone</span></div>
-    <div class="search-bar">
-        <input type="text" id="search-input" placeholder="Pesquisar vídeos...">
-        <button id="search-btn">🔍</button>
+<div class="crt-overlay"></div>
+
+<div id="game-container">
+    <div class="hud-status">
+        GRABPACK v4.02<br>
+        SISTEMA: <span id="sys-status">CRÍTICO</span><br>
+        CONEXÃO: ESTÁVEL (GIBLET-LINK)
     </div>
-    <div id="user-status">● Online</div>
-</header>
 
-<main>
-    <section id="player-container">
-        <div class="video-wrapper" id="main-player">
-            <div style="padding: 20%; text-align: center;">Pesquise algo para começar!</div>
-        </div>
-        <h2 id="current-title">Selecione um vídeo</h2>
-        <p id="current-desc" style="color: var(--yt-text-gray);"></p>
-    </section>
+    <div id="visual-area">
+        <button id="start-btn">INICIAR SEQUÊNCIA: CAPÍTULO 6</button>
+        <div id="doctor-face" class="doctor-glitch">DR. SAWYER</div>
+    </div>
 
-    <aside id="sidebar">
-        <h3>Recomendados</h3>
-        <div id="results-list"></div>
-    </aside>
-</main>
+    <div id="subtitles"></div>
+</div>
 
 <script>
-    const searchInput = document.getElementById('search-input');
-    const searchBtn = document.getElementById('search-btn');
-    const resultsList = document.getElementById('results-list');
-    const mainPlayer = document.getElementById('main-player');
+    const subs = document.getElementById('subtitles');
+    const btn = document.getElementById('start-btn');
+    const face = document.getElementById('doctor-face');
+    const status = document.getElementById('sys-status');
 
-    // Chave de API pública (Exemplo - Em produção use a sua própria)
-    // Nota: Como IA, não posso fornecer uma chave privada eterna, 
-    // mas esta lógica usa a busca do próprio sistema.
-    
-    async function searchVideos(query) {
-        if(!query) return;
+    const scriptLines = [
+        { text: "[Chiado de estática intensa...]", delay: 1000 },
+        { text: "Você é persistente... Eu admito.", delay: 2500 },
+        { text: "O 1006 achou que você era apenas lixo descartável.", delay: 3000 },
+        { text: "Mas ele esqueceu que o lixo é o que restou deste império.", delay: 3000 },
+        { text: "Eu não sou mais um funcionário... Eu sou o SISTEMA.", delay: 3500 },
+        { text: "Prepare-se. Vamos descer agora.", delay: 2000 }
+    ];
+
+    btn.addEventListener('click', () => {
+        btn.style.display = 'none';
+        startSequence();
+    });
+
+    async function startSequence() {
+        // Simula o sistema voltando
+        status.innerText = "RESTAURANDO...";
+        status.style.color = "#00ff00";
         
-        // Salvando o estado da busca (Como você pediu para voltar onde saiu)
-        localStorage.setItem('lastSearch', query);
-
-        // Simulando busca via IFrame (Embed) para evitar limites de API Key
-        // Em um app real, aqui chamariamos a YouTube Data API v3
-        const mockVideos = [
-            {id: 'dQw4w9WgXcQ', title: 'Rick Astley - Never Gonna Give You Up', channel: 'Rick Astley'},
-            {id: '9bZkp7q19f0', title: 'PSY - GANGNAM STYLE', channel: 'officialpsy'},
-            {id: 'kJQP7kiw5Fk', title: 'Luis Fonsi - Despacito', channel: 'LuisFonsiVEVO'},
-            {id: 'L_jWHffIx5E', title: 'Smash Mouth - All Star', channel: 'SmashMouthVEVO'}
-        ];
-
-        renderList(mockVideos);
-    }
-
-    function renderList(videos) {
-        resultsList.innerHTML = '';
-        videos.forEach(video => {
-            const div = document.createElement('div');
-            div.className = 'video-item';
-            div.innerHTML = `
-                <div class="thumbnail" style="background-image: url('https://img.youtube.com/vi/${video.id}/mqdefault.jpg')"></div>
-                <div class="video-info">
-                    <h4>${video.title}</h4>
-                    <p>${video.channel}</p>
-                </div>
-            `;
-            div.onclick = () => playVideo(video.id, video.title);
-            resultsList.appendChild(div);
-        });
-    }
-
-    function playVideo(id, title) {
-        mainPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
-        document.getElementById('current-title').innerText = title;
-        
-        // Salva o último vídeo assistido
-        localStorage.setItem('lastVideoId', id);
-        localStorage.setItem('lastVideoTitle', title);
-    }
-
-    // Lógica para VOLTAR ONDE PAROU
-    window.onload = () => {
-        const lastSearch = localStorage.getItem('lastSearch');
-        const lastVideoId = localStorage.getItem('lastVideoId');
-        const lastVideoTitle = localStorage.getItem('lastVideoTitle');
-
-        if(lastSearch) {
-            searchInput.value = lastSearch;
-            searchVideos(lastSearch);
+        for (let line of scriptLines) {
+            if (line.text.includes("SISTEMA")) {
+                face.style.display = 'block';
+                document.body.style.backgroundColor = "#111";
+            }
+            
+            subs.innerText = line.text;
+            await new Promise(r => setTimeout(r, line.delay));
+            subs.innerText = "";
+            await new Promise(r => setTimeout(r, 200));
         }
 
-        if(lastVideoId) {
-            playVideo(lastVideoId, lastVideoTitle);
-        }
-    };
-
-    searchBtn.onclick = () => searchVideos(searchInput.value);
-    searchInput.onkeypress = (e) => { if(e.key === 'Enter') searchVideos(searchInput.value); };
-
+        // Final da intro
+        document.getElementById('game-container').innerHTML = "<h1 style='color:white'>CAPÍTULO 6: O SISTEMA QUE TUDO VÊ</h1>";
+    }
 </script>
+
 </body>
 </html>
