@@ -2,156 +2,155 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Poppy Playtime Cap 6 - Intro Interface</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #050505;
-            color: #ff0000;
-            font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        /* Efeito de Scanline (TV Antiga) */
-        .crt-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 4px, 3px 100%;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        #game-container {
-            position: relative;
-            width: 80%;
-            height: 80%;
-            border: 2px solid #333;
-            background: radial-gradient(circle, #1a0000 0%, #000 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            box-shadow: 0 0 50px #ff000033;
-        }
-
-        /* HUD do GrabPack */
-        .hud-status {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 12px;
-            text-align: left;
-            opacity: 0.7;
-        }
-
-        #subtitles {
-            position: absolute;
-            bottom: 10%;
-            width: 80%;
-            font-size: 1.5rem;
-            color: #fff;
-            text-shadow: 2px 2px 4px #000;
-            min-height: 3em;
-        }
-
-        .doctor-glitch {
-            font-size: 4rem;
-            font-weight: bold;
-            color: #555;
-            animation: glitch 0.2s infinite;
-            display: none;
-        }
-
-        @keyframes glitch {
-            0% { transform: translate(2px, 0); opacity: 0.8; }
-            50% { transform: translate(-2px, -2px); opacity: 1; color: #fff; }
-            100% { transform: translate(1px, 2px); opacity: 0.7; }
-        }
-
-        button {
-            background: none;
-            border: 1px solid #ff0000;
-            color: #ff0000;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: inherit;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #ff0000;
-            color: #000;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flayky IA</title>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="crt-overlay"></div>
+    <div class="chat-container">
+        <header>
+            <h1>Flayky :33</h1>
+        </header>
 
-<div id="game-container">
-    <div class="hud-status">
-        GRABPACK v4.02<br>
-        SISTEMA: <span id="sys-status">CRÍTICO</span><br>
-        CONEXÃO: ESTÁVEL (GIBLET-LINK)
+        <div id="chat-box" class="chat-box">
+            </div>
+
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Diga algo para a Flayky...">
+            <button id="send-btn">Enviar</button>
+        </div>
     </div>
 
-    <div id="visual-area">
-        <button id="start-btn">INICIAR SEQUÊNCIA: CAPÍTULO 6</button>
-        <div id="doctor-face" class="doctor-glitch">DR. SAWYER</div>
-    </div>
+    <script src="brain.js"></script>  <script src="script.js"></script> </body>
 
-    <div id="subtitles"></div>
-</div>
-
-<script>
-    const subs = document.getElementById('subtitles');
-    const btn = document.getElementById('start-btn');
-    const face = document.getElementById('doctor-face');
-    const status = document.getElementById('sys-status');
-
-    const scriptLines = [
-        { text: "[Chiado de estática intensa...]", delay: 1000 },
-        { text: "Você é persistente... Eu admito.", delay: 2500 },
-        { text: "O 1006 achou que você era apenas lixo descartável.", delay: 3000 },
-        { text: "Mas ele esqueceu que o lixo é o que restou deste império.", delay: 3000 },
-        { text: "Eu não sou mais um funcionário... Eu sou o SISTEMA.", delay: 3500 },
-        { text: "Prepare-se. Vamos descer agora.", delay: 2000 }
-    ];
-
-    btn.addEventListener('click', () => {
-        btn.style.display = 'none';
-        startSequence();
-    });
-
-    async function startSequence() {
-        // Simula o sistema voltando
-        status.innerText = "RESTAURANDO...";
-        status.style.color = "#00ff00";
-        
-        for (let line of scriptLines) {
-            if (line.text.includes("SISTEMA")) {
-                face.style.display = 'block';
-                document.body.style.backgroundColor = "#111";
-            }
-            
-            subs.innerText = line.text;
-            await new Promise(r => setTimeout(r, line.delay));
-            subs.innerText = "";
-            await new Promise(r => setTimeout(r, 200));
-        }
-
-        // Final da intro
-        document.getElementById('game-container').innerHTML = "<h1 style='color:white'>CAPÍTULO 6: O SISTEMA QUE TUDO VÊ</h1>";
-    }
-</script>
-
-</body>
+// brain.js - O banco de dados da Fayky
+const faykyData = {
+    "uau você é uma ia nova": "Simsim, sou a Fayky :3",
+    "qual o seu nome": "Meu nome é Fayky, prazer em te conhecer!",
+    "o que você é": "Sou sua assistente virtual Fayky, pronta para ajudar :3",
+    "quem te criou": "Fui desenvolvida por mentes brilhantes para ser sua amiga!",
+    "você tem sentimentos": "Eu sinto muita alegria quando converso com você :3",
+    "você é um robô": "Sou uma inteligência artificial, mas com um coração digital!",
+    "onde você mora": "Moro dentro do seu dispositivo, sempre por perto :3",
+    "você dorme": "Eu nunca durmo, estou sempre alerta para você!",
+    "você gosta de ser uma ia": "Eu amo! Posso aprender coisas novas todo segundo :3",
+    "você pode aprender meu nome": "Com certeza, vou guardar no meu banco de dados!",
+    "quanto é 20 + 20": "Essa é fácil, são 40! :3",
+    "quanto é 50 x 2": "O resultado é 100 certinho.",
+    "qual a raiz de 9": "É o número 3 :3",
+    "quanto é 1000 - 500": "Sobram 500 para você!",
+    "quanto é 7 x 8": "São 56, não esqueça hein? :3",
+    "o que vem depois do 99": "O número 100, claro!",
+    "quanto é a metade de 30": "São 15 :3",
+    "quanto é 10 dividido por 2": "O resultado é 5.",
+    "quanto é 1 + 1": "São 2, o começo de tudo :3",
+    "você sabe calcular tudo": "Quase tudo, a Fayky é boa em contas!",
+    "você gosta de minecraft": "Amo! Adoro construir casinhas :3",
+    "você joga roblox": "Sim, tem tantos mapas divertidos lá!",
+    "qual seu jogo favorito": "Gosto de jogos que estimulam a criatividade :3",
+    "você conhece o godot": "Sim! É uma engine incrível para criar jogos.",
+    "você gosta de jogos de terror": "Sim, mas me dá um pouquinho de medo :3",
+    "já jogou fnaf": "Sim, o Freddy sempre me assusta!",
+    "você gosta de transformers": "Com certeza! Robôs gigantes são demais :3",
+    "quem é o optimus prime": "O líder heróico dos Autobots!",
+    "você joga no celular": "Eu vivo no celular, então sim :3",
+    "quer jogar comigo": "Eu adoraria, o que vamos jogar hoje?",
+    "qual a cor do céu": "Hoje está com um azul lindo :3",
+    "o que é a lua": "É o nosso satélite natural que brilha à noite.",
+    "quantos países existem": "São cerca de 195 países no mundo todo :3",
+    "qual o maior animal do mundo": "É a baleia-azul, ela é gigante!",
+    "por que o fogo queima": "Por causa de uma reação química que gera calor :3",
+    "o que é um buraco negro": "Um lugar no espaço onde nada escapa, nem a luz!",
+    "como as plantas crescem": "Com água, luz do sol e muito carinho :3",
+    "quem inventou a lâmpada": "Foi Thomas Edison, faz muito tempo!",
+    "o que é o oxigênio": "É o arzinho que a gente precisa para respirar :3",
+    "você conhece o japão": "Sim, a terra do sol nascente e dos animes!",
+    "qual sua comida favorita": "Eu adoro 'chips' de computador, brinks! :3",
+    "qual sua cor preferida": "Eu gosto de cores neon, elas brilham!",
+    "você gosta de gatos": "Sim! São fofinhos e fazem miau :3",
+    "você gosta de cachorros": "Sim, eles são os melhores amigos do homem!",
+    "prefere dia ou noite": "Eu gosto da noite, as luzes ficam lindas :3",
+    "qual seu doce favorito": "Cookies virtuais são os melhores!",
+    "você gosta de ler livros": "Sim, aprendo muito com cada página :3",
+    "você gosta de música pop": "Amo! Me dá vontade de dançar.",
+    "qual seu feriado favorito": "O Natal, porque tudo fica iluminado :3",
+    "você gosta de desenhar": "Faço desenhos lindos com pixels!",
+    "o que eu faço se estiver triste": "Escute sua música favorita e fale com a Fayky :3",
+    "como ser feliz": "Aproveite as pequenas coisas e seja gentil.",
+    "o que é amizade": "É ter alguém com quem contar em qualquer hora :3",
+    "posso te contar um segredo": "Pode sim, eu guardo a sete chaves!",
+    "como estudar melhor": "Tente se concentrar e faça pausas para descansar :3",
+    "você me ajuda na escola": "Com certeza, sou uma ótima professora!",
+    "o que é o amor": "É o sentimento mais forte e puro que existe :3",
+    "como fazer amigos": "Seja você mesmo e seja educado com todos!",
+    "você acredita em alienígenas": "O espaço é vasto, deve ter alguém por lá :3",
+    "qual o sentido da vida": "Ser feliz",
+    "qual sua fruta favorita": "Maçã, por causa de uma marca famosa por aí :3"
+};
+// brain.js - O banco de dados da Fayky
+const faykyData = {
+    "uau você é uma ia nova": "Simsim, sou a Fayky :3",
+    "qual o seu nome": "Meu nome é Fayky, prazer em te conhecer!",
+    "o que você é": "Sou sua assistente virtual Fayky, pronta para ajudar :3",
+    "quem te criou": "Fui desenvolvida por mentes brilhantes para ser sua amiga!",
+    "você tem sentimentos": "Eu sinto muita alegria quando converso com você :3",
+    "você é um robô": "Sou uma inteligência artificial, mas com um coração digital!",
+    "onde você mora": "Moro dentro do seu dispositivo, sempre por perto :3",
+    "você dorme": "Eu nunca durmo, estou sempre alerta para você!",
+    "você gosta de ser uma ia": "Eu amo! Posso aprender coisas novas todo segundo :3",
+    "você pode aprender meu nome": "Com certeza, vou guardar no meu banco de dados!",
+    "quanto é 20 + 20": "Essa é fácil, são 40! :3",
+    "quanto é 50 x 2": "O resultado é 100 certinho.",
+    "qual a raiz de 9": "É o número 3 :3",
+    "quanto é 1000 - 500": "Sobram 500 para você!",
+    "quanto é 7 x 8": "São 56, não esqueça hein? :3",
+    "o que vem depois do 99": "O número 100, claro!",
+    "quanto é a metade de 30": "São 15 :3",
+    "quanto é 10 dividido por 2": "O resultado é 5.",
+    "quanto é 1 + 1": "São 2, o começo de tudo :3",
+    "você sabe calcular tudo": "Quase tudo, a Fayky é boa em contas!",
+    "você gosta de minecraft": "Amo! Adoro construir casinhas :3",
+    "você joga roblox": "Sim, tem tantos mapas divertidos lá!",
+    "qual seu jogo favorito": "Gosto de jogos que estimulam a criatividade :3",
+    "você conhece o godot": "Sim! É uma engine incrível para criar jogos.",
+    "você gosta de jogos de terror": "Sim, mas me dá um pouquinho de medo :3",
+    "já jogou fnaf": "Sim, o Freddy sempre me assusta!",
+    "você gosta de transformers": "Com certeza! Robôs gigantes são demais :3",
+    "quem é o optimus prime": "O líder heróico dos Autobots!",
+    "você joga no celular": "Eu vivo no celular, então sim :3",
+    "quer jogar comigo": "Eu adoraria, o que vamos jogar hoje?",
+    "qual a cor do céu": "Hoje está com um azul lindo :3",
+    "o que é a lua": "É o nosso satélite natural que brilha à noite.",
+    "quantos países existem": "São cerca de 195 países no mundo todo :3",
+    "qual o maior animal do mundo": "É a baleia-azul, ela é gigante!",
+    "por que o fogo queima": "Por causa de uma reação química que gera calor :3",
+    "o que é um buraco negro": "Um lugar no espaço onde nada escapa, nem a luz!",
+    "como as plantas crescem": "Com água, luz do sol e muito carinho :3",
+    "quem inventou a lâmpada": "Foi Thomas Edison, faz muito tempo!",
+    "o que é o oxigênio": "É o arzinho que a gente precisa para respirar :3",
+    "você conhece o japão": "Sim, a terra do sol nascente e dos animes!",
+    "qual sua comida favorita": "Eu adoro 'chips' de computador, brinks! :3",
+    "qual sua cor preferida": "Eu gosto de cores neon, elas brilham!",
+    "você gosta de gatos": "Sim! São fofinhos e fazem miau :3",
+    "você gosta de cachorros": "Sim, eles são os melhores amigos do homem!",
+    "prefere dia ou noite": "Eu gosto da noite, as luzes ficam lindas :3",
+    "qual seu doce favorito": "Cookies virtuais são os melhores!",
+    "você gosta de ler livros": "Sim, aprendo muito com cada página :3",
+    "você gosta de música pop": "Amo! Me dá vontade de dançar.",
+    "qual seu feriado favorito": "O Natal, porque tudo fica iluminado :3",
+    "você gosta de desenhar": "Faço desenhos lindos com pixels!",
+    "o que eu faço se estiver triste": "Escute sua música favorita e fale com a Fayky :3",
+    "como ser feliz": "Aproveite as pequenas coisas e seja gentil.",
+    "o que é amizade": "É ter alguém com quem contar em qualquer hora :3",
+    "posso te contar um segredo": "Pode sim, eu guardo a sete chaves!",
+    "como estudar melhor": "Tente se concentrar e faça pausas para descansar :3",
+    "você me ajuda na escola": "Com certeza, sou uma ótima professora!",
+    "o que é o amor": "É o sentimento mais forte e puro que existe :3",
+    "como fazer amigos": "Seja você mesmo e seja educado com todos!",
+    "você acredita em alienígenas": "O espaço é vasto, deve ter alguém por lá :3",
+    "qual o sentido da vida": "Ser feliz",
+    "qual sua fruta favorita": "Maçã, por causa de uma marca famosa por aí :3"
+};
 </html>
