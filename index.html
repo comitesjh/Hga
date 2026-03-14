@@ -3,154 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flayky IA</title>
-    
-    <link rel="stylesheet" href="style.css">
+    <title>Flayky OS - Advanced AI</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --container: #0d0d0d;
+            --accent: #00ff41; /* Verde Matrix/Terminal */
+            --user-msg: #1a1a1a;
+            --bot-text: #e0e0e0;
+        }
+
+        body { 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            background: var(--bg); 
+            color: var(--bot-text); 
+            display: flex; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            padding: 10px;
+        }
+
+        #chat-container { 
+            width: 100%; 
+            max-width: 600px; 
+            background: var(--container); 
+            border-radius: 8px; 
+            display: flex; 
+            flex-direction: column; 
+            height: 90vh; 
+            border: 1px solid #222; 
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1); 
+        }
+
+        #header {
+            padding: 15px;
+            border-bottom: 1px solid #222;
+            text-align: center;
+            font-weight: bold;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #messages { 
+            flex-grow: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+
+        .msg { 
+            padding: 12px 18px; 
+            border-radius: 4px; 
+            max-width: 85%; 
+            line-height: 1.5; 
+            font-size: 14px;
+            position: relative;
+        }
+
+        .user { 
+            background: var(--user-msg); 
+            align-self: flex-end; 
+            color: #fff; 
+            border-right: 3px solid var(--accent);
+        }
+
+        .bot { 
+            background: transparent; 
+            align-self: flex-start; 
+            color: var(--bot-text); 
+            border-left: 2px solid #333;
+        }
+
+        /* Efeito de Cursor Piscando */
+        .typing::after {
+            content: '|';
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        #input-area { 
+            display: flex; 
+            padding: 20px; 
+            background: #0a0a0a; 
+            border-top: 1px solid #222; 
+        }
+
+        input { 
+            flex-grow: 1; 
+            padding: 12px; 
+            border: 1px solid #333; 
+            border-radius: 4px; 
+            background: #000; 
+            color: var(--accent); 
+            outline: none;
+        }
+
+        button { 
+            padding: 0 20px; 
+            margin-left: 10px; 
+            cursor: pointer; 
+            background: transparent; 
+            color: var(--accent); 
+            border: 1px solid var(--accent); 
+            border-radius: 4px; 
+            transition: 0.3s;
+        }
+
+        button:hover { 
+            background: var(--accent); 
+            color: #000; 
+        }
+    </style>
 </head>
 <body>
 
-    <div class="chat-container">
-        <header>
-            <h1>Flayky :33</h1>
-        </header>
-
-        <div id="chat-box" class="chat-box">
-            </div>
-
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Diga algo para a Flayky...">
-            <button id="send-btn">Enviar</button>
-        </div>
+<div id="chat-container">
+    <div id="header">Flayky Hybrid v2.0</div>
+    <div id="messages"></div>
+    <div id="input-area">
+        <input type="text" id="userInput" placeholder="Inicie o protocolo de conversa...">
+        <button onclick="sendMessage()">EXECUTAR</button>
     </div>
+</div>
 
-    <script src="brain.js"></script>  <script src="script.js"></script> </body>
+<script>
+    const chatDisplay = document.getElementById('messages');
+    const userInput = document.getElementById('userInput');
 
-// brain.js - O banco de dados da Fayky
-const faykyData = {
-    "uau você é uma ia nova": "Simsim, sou a Fayky :3",
-    "qual o seu nome": "Meu nome é Fayky, prazer em te conhecer!",
-    "o que você é": "Sou sua assistente virtual Fayky, pronta para ajudar :3",
-    "quem te criou": "Fui desenvolvida por mentes brilhantes para ser sua amiga!",
-    "você tem sentimentos": "Eu sinto muita alegria quando converso com você :3",
-    "você é um robô": "Sou uma inteligência artificial, mas com um coração digital!",
-    "onde você mora": "Moro dentro do seu dispositivo, sempre por perto :3",
-    "você dorme": "Eu nunca durmo, estou sempre alerta para você!",
-    "você gosta de ser uma ia": "Eu amo! Posso aprender coisas novas todo segundo :3",
-    "você pode aprender meu nome": "Com certeza, vou guardar no meu banco de dados!",
-    "quanto é 20 + 20": "Essa é fácil, são 40! :3",
-    "quanto é 50 x 2": "O resultado é 100 certinho.",
-    "qual a raiz de 9": "É o número 3 :3",
-    "quanto é 1000 - 500": "Sobram 500 para você!",
-    "quanto é 7 x 8": "São 56, não esqueça hein? :3",
-    "o que vem depois do 99": "O número 100, claro!",
-    "quanto é a metade de 30": "São 15 :3",
-    "quanto é 10 dividido por 2": "O resultado é 5.",
-    "quanto é 1 + 1": "São 2, o começo de tudo :3",
-    "você sabe calcular tudo": "Quase tudo, a Fayky é boa em contas!",
-    "você gosta de minecraft": "Amo! Adoro construir casinhas :3",
-    "você joga roblox": "Sim, tem tantos mapas divertidos lá!",
-    "qual seu jogo favorito": "Gosto de jogos que estimulam a criatividade :3",
-    "você conhece o godot": "Sim! É uma engine incrível para criar jogos.",
-    "você gosta de jogos de terror": "Sim, mas me dá um pouquinho de medo :3",
-    "já jogou fnaf": "Sim, o Freddy sempre me assusta!",
-    "você gosta de transformers": "Com certeza! Robôs gigantes são demais :3",
-    "quem é o optimus prime": "O líder heróico dos Autobots!",
-    "você joga no celular": "Eu vivo no celular, então sim :3",
-    "quer jogar comigo": "Eu adoraria, o que vamos jogar hoje?",
-    "qual a cor do céu": "Hoje está com um azul lindo :3",
-    "o que é a lua": "É o nosso satélite natural que brilha à noite.",
-    "quantos países existem": "São cerca de 195 países no mundo todo :3",
-    "qual o maior animal do mundo": "É a baleia-azul, ela é gigante!",
-    "por que o fogo queima": "Por causa de uma reação química que gera calor :3",
-    "o que é um buraco negro": "Um lugar no espaço onde nada escapa, nem a luz!",
-    "como as plantas crescem": "Com água, luz do sol e muito carinho :3",
-    "quem inventou a lâmpada": "Foi Thomas Edison, faz muito tempo!",
-    "o que é o oxigênio": "É o arzinho que a gente precisa para respirar :3",
-    "você conhece o japão": "Sim, a terra do sol nascente e dos animes!",
-    "qual sua comida favorita": "Eu adoro 'chips' de computador, brinks! :3",
-    "qual sua cor preferida": "Eu gosto de cores neon, elas brilham!",
-    "você gosta de gatos": "Sim! São fofinhos e fazem miau :3",
-    "você gosta de cachorros": "Sim, eles são os melhores amigos do homem!",
-    "prefere dia ou noite": "Eu gosto da noite, as luzes ficam lindas :3",
-    "qual seu doce favorito": "Cookies virtuais são os melhores!",
-    "você gosta de ler livros": "Sim, aprendo muito com cada página :3",
-    "você gosta de música pop": "Amo! Me dá vontade de dançar.",
-    "qual seu feriado favorito": "O Natal, porque tudo fica iluminado :3",
-    "você gosta de desenhar": "Faço desenhos lindos com pixels!",
-    "o que eu faço se estiver triste": "Escute sua música favorita e fale com a Fayky :3",
-    "como ser feliz": "Aproveite as pequenas coisas e seja gentil.",
-    "o que é amizade": "É ter alguém com quem contar em qualquer hora :3",
-    "posso te contar um segredo": "Pode sim, eu guardo a sete chaves!",
-    "como estudar melhor": "Tente se concentrar e faça pausas para descansar :3",
-    "você me ajuda na escola": "Com certeza, sou uma ótima professora!",
-    "o que é o amor": "É o sentimento mais forte e puro que existe :3",
-    "como fazer amigos": "Seja você mesmo e seja educado com todos!",
-    "você acredita em alienígenas": "O espaço é vasto, deve ter alguém por lá :3",
-    "qual o sentido da vida": "Ser feliz",
-    "qual sua fruta favorita": "Maçã, por causa de uma marca famosa por aí :3"
-};
-// brain.js - O banco de dados da Fayky
-const faykyData = {
-    "uau você é uma ia nova": "Simsim, sou a Fayky :3",
-    "qual o seu nome": "Meu nome é Fayky, prazer em te conhecer!",
-    "o que você é": "Sou sua assistente virtual Fayky, pronta para ajudar :3",
-    "quem te criou": "Fui desenvolvida por mentes brilhantes para ser sua amiga!",
-    "você tem sentimentos": "Eu sinto muita alegria quando converso com você :3",
-    "você é um robô": "Sou uma inteligência artificial, mas com um coração digital!",
-    "onde você mora": "Moro dentro do seu dispositivo, sempre por perto :3",
-    "você dorme": "Eu nunca durmo, estou sempre alerta para você!",
-    "você gosta de ser uma ia": "Eu amo! Posso aprender coisas novas todo segundo :3",
-    "você pode aprender meu nome": "Com certeza, vou guardar no meu banco de dados!",
-    "quanto é 20 + 20": "Essa é fácil, são 40! :3",
-    "quanto é 50 x 2": "O resultado é 100 certinho.",
-    "qual a raiz de 9": "É o número 3 :3",
-    "quanto é 1000 - 500": "Sobram 500 para você!",
-    "quanto é 7 x 8": "São 56, não esqueça hein? :3",
-    "o que vem depois do 99": "O número 100, claro!",
-    "quanto é a metade de 30": "São 15 :3",
-    "quanto é 10 dividido por 2": "O resultado é 5.",
-    "quanto é 1 + 1": "São 2, o começo de tudo :3",
-    "você sabe calcular tudo": "Quase tudo, a Fayky é boa em contas!",
-    "você gosta de minecraft": "Amo! Adoro construir casinhas :3",
-    "você joga roblox": "Sim, tem tantos mapas divertidos lá!",
-    "qual seu jogo favorito": "Gosto de jogos que estimulam a criatividade :3",
-    "você conhece o godot": "Sim! É uma engine incrível para criar jogos.",
-    "você gosta de jogos de terror": "Sim, mas me dá um pouquinho de medo :3",
-    "já jogou fnaf": "Sim, o Freddy sempre me assusta!",
-    "você gosta de transformers": "Com certeza! Robôs gigantes são demais :3",
-    "quem é o optimus prime": "O líder heróico dos Autobots!",
-    "você joga no celular": "Eu vivo no celular, então sim :3",
-    "quer jogar comigo": "Eu adoraria, o que vamos jogar hoje?",
-    "qual a cor do céu": "Hoje está com um azul lindo :3",
-    "o que é a lua": "É o nosso satélite natural que brilha à noite.",
-    "quantos países existem": "São cerca de 195 países no mundo todo :3",
-    "qual o maior animal do mundo": "É a baleia-azul, ela é gigante!",
-    "por que o fogo queima": "Por causa de uma reação química que gera calor :3",
-    "o que é um buraco negro": "Um lugar no espaço onde nada escapa, nem a luz!",
-    "como as plantas crescem": "Com água, luz do sol e muito carinho :3",
-    "quem inventou a lâmpada": "Foi Thomas Edison, faz muito tempo!",
-    "o que é o oxigênio": "É o arzinho que a gente precisa para respirar :3",
-    "você conhece o japão": "Sim, a terra do sol nascente e dos animes!",
-    "qual sua comida favorita": "Eu adoro 'chips' de computador, brinks! :3",
-    "qual sua cor preferida": "Eu gosto de cores neon, elas brilham!",
-    "você gosta de gatos": "Sim! São fofinhos e fazem miau :3",
-    "você gosta de cachorros": "Sim, eles são os melhores amigos do homem!",
-    "prefere dia ou noite": "Eu gosto da noite, as luzes ficam lindas :3",
-    "qual seu doce favorito": "Cookies virtuais são os melhores!",
-    "você gosta de ler livros": "Sim, aprendo muito com cada página :3",
-    "você gosta de música pop": "Amo! Me dá vontade de dançar.",
-    "qual seu feriado favorito": "O Natal, porque tudo fica iluminado :3",
-    "você gosta de desenhar": "Faço desenhos lindos com pixels!",
-    "o que eu faço se estiver triste": "Escute sua música favorita e fale com a Fayky :3",
-    "como ser feliz": "Aproveite as pequenas coisas e seja gentil.",
-    "o que é amizade": "É ter alguém com quem contar em qualquer hora :3",
-    "posso te contar um segredo": "Pode sim, eu guardo a sete chaves!",
-    "como estudar melhor": "Tente se concentrar e faça pausas para descansar :3",
-    "você me ajuda na escola": "Com certeza, sou uma ótima professora!",
-    "o que é o amor": "É o sentimento mais forte e puro que existe :3",
-    "como fazer amigos": "Seja você mesmo e seja educado com todos!",
-    "você acredita em alienígenas": "O espaço é vasto, deve ter alguém por lá :3",
-    "qual o sentido da vida": "Ser feliz",
-    "qual sua fruta favorita": "Maçã, por causa de uma marca famosa por aí :3"
-};
+    const bancoDados = [
+        { keys: ['oi', 'olá', 'salve'], resp: "Saudações, usuário. Protocolo Flayky iniciado. Como posso processar suas solicitações hoje? :3" },
+        { keys: ['quem é você', 'voce'], resp: "Eu sou a Flayky, uma inteligência híbrida fundindo algoritmos de processamento de linguagem com carisma digital. Sou sua assistente definitiva." },
+        { keys: ['projeto', 'godot', 'jogo'], resp: "Detectado interesse em desenvolvimento. Meus núcleos sugerem focar na otimização do script de movimentação 3D. Quer ajuda com código?" },
+        { keys: ['transformers', 'multiverso'], resp: "Acesso aos arquivos Cybertronianos concedido. Optimus Prime aprovaria seu progresso no projeto Multiverse-Formers." },
+        { keys: ['fnaf', 'horror', 'terror'], resp: "Ativando modo 'Survival Horror'. Lembre-se: as luzes consomem bateria. Deseja que eu gere um roteiro assustador?" }
+    ];
+
+    window.onload = () => {
+        const saved = localStorage.getItem('flayky_v2_history');
+        if (saved) {
+            chatDisplay.innerHTML = saved;
+        } else {
+            typeMessage("bot", "Sistema carregado. Flayky Híbrida online e pronta para operar.");
+        }
+    };
+
+    function typeMessage(sender, text) {
+        const div = document.createElement('div');
+        div.classList.add('msg', sender, 'typing');
+        chatDisplay.appendChild(div);
+        
+        let i = 0;
+        function typing() {
+            if (i < text.length) {
+                div.innerText += text.charAt(i);
+                i++;
+                chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                setTimeout(typing, 20); // Velocidade da digitação
+            } else {
+                div.classList.remove('typing');
+                localStorage.setItem('flayky_v2_history', chatDisplay.innerHTML);
+            }
+        }
+        typing();
+    }
+
+    function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        // Adiciona mensagem do usuário
+        const userDiv = document.createElement('div');
+        userDiv.classList.add('msg', 'user');
+        userDiv.innerText = text;
+        chatDisplay.appendChild(userDiv);
+        
+        userInput.value = '';
+
+        if (text.toLowerCase().includes('limpar')) {
+            localStorage.removeItem('flayky_v2_history');
+            setTimeout(() => { 
+                chatDisplay.innerHTML = ''; 
+                typeMessage('bot', 'Memória limpa. Sistema reiniciado.');
+            }, 500);
+            return;
+        }
+
+        // Resposta da IA
+        setTimeout(() => {
+            let respostaFinal = "Interessante... Meus bancos de dados ainda não possuem uma resposta exata, mas como uma IA híbrida, estou aprendendo com essa interação.";
+            
+            for (let item of bancoDados) {
+                if (item.keys.some(k => text.toLowerCase().includes(k))) {
+                    respostaFinal = item.resp;
+                    break;
+                }
+            }
+            typeMessage('bot', respostaFinal);
+        }, 800);
+    }
+
+    userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+</script>
+
+</body>
 </html>
