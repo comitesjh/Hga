@@ -3,177 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flayky Mobile OS</title>
+    <title>Flayky Ultra - Call Edition</title>
     <style>
         :root {
-            --bg: #080808;
-            --card: #141414;
-            --accent: #00ff41;
-            --glass: rgba(255, 255, 255, 0.05);
+            --bg: #000000;
+            --core-green: #00ff00;
+            --dark-grey: #121212;
+            --user-blue: #007aff;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; overflow: hidden; height: 100vh; }
-
-        /* Layout Principal */
-        #app-container { display: flex; flex-direction: column; height: 100vh; position: relative; }
-
-        /* Header com Botão Especial */
-        #header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 10; border-bottom: 1px solid #222; }
-        
-        /* Botão Call Estilizado (Hexágono ou Circunferência Tecnológica) */
-        .call-trigger {
-            width: 45px; height: 45px;
-            background: linear-gradient(135deg, #00ff41, #008f11);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
-            cursor: pointer; border: none; font-size: 20px;
+        body { 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background: var(--bg); 
+            color: white; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+            overflow: hidden;
         }
 
-        /* Área de Mensagens Otimizada para Mobile */
-        #messages { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
-        .msg { padding: 12px 15px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.4; animation: fadeIn 0.3s; }
-        .user { align-self: flex-end; background: #222; border-bottom-right-radius: 4px; color: #00ff41; }
-        .bot { align-self: flex-start; background: var(--card); border-bottom-left-radius: 4px; border: 1px solid #333; }
-
-        /* Teclado e Input Mobile */
-        #input-area { 
-            position: fixed; bottom: 0; width: 100%; 
-            background: rgba(10,10,10,0.95); padding: 10px; 
-            display: flex; align-items: center; box-sizing: border-box;
-            border-top: 1px solid #222;
+        /* Header inspirado na sua print */
+        #header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #1a1a1a;
+            background: var(--bg);
         }
-        input { 
-            flex-grow: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; 
-            border-radius: 25px; color: white; padding: 0 20px; outline: none; font-size: 16px; 
+        #header h1 {
+            color: var(--core-green);
+            font-size: 16px;
+            letter-spacing: 3px;
+            margin: 0;
+            text-transform: uppercase;
+            font-weight: 900;
         }
 
-        /* Overlay de Chamada / Personalidade */
-        #call-overlay {
+        /* Chat Area */
+        #chat-flow {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        .bot-msg { background: var(--dark-grey); align-self: flex-start; border: 1px solid #333; color: #eee; }
+        .user-msg { background: var(--user-blue); align-self: flex-end; color: white; }
+
+        /* Teclado Mobile Melhorado */
+        #input-container {
+            padding: 15px;
+            background: #080808;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid #1a1a1a;
+        }
+        input {
+            flex-grow: 1;
+            background: #1a1a1a;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 30px;
+            color: white;
+            outline: none;
+            font-size: 16px;
+        }
+        .action-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-call { background: var(--core-green); color: black; font-size: 20px; }
+        .btn-send { background: #333; color: var(--core-green); }
+
+        /* Menu de Personalidade e Call */
+        #call-ui {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 100; display: none;
+            background: var(--bg); z-index: 100; display: none;
             flex-direction: column; align-items: center; justify-content: center;
+        }
+        .personality-opt {
+            background: var(--dark-grey);
+            padding: 20px;
+            margin: 10px;
+            border-radius: 15px;
+            width: 80%;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid #222;
+        }
+        .personality-opt img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+
+        /* Tela de Ligação Ativa */
+        #active-call-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
         }
-        .personality-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-        .p-card { background: #111; padding: 15px; border-radius: 15px; border: 1px solid #333; cursor: pointer; }
-        .p-card img { width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--accent); }
-
-        /* Tela de Chamada Ativa */
-        #active-call { display: none; flex-direction: column; align-items: center; position: relative; }
-        .avatar-call { width: 150px; height: 150px; border-radius: 50%; margin-top: 50px; border: 4px solid var(--accent); box-shadow: 0 0 30px var(--accent); }
-        .call-status { margin-top: 20px; font-size: 18px; color: var(--accent); }
-        .end-call { margin-top: 100px; background: #ff3b30; width: 70px; height: 70px; border-radius: 50%; border: none; color: white; font-size: 24px; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .big-avatar {
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            border: 4px solid var(--core-green);
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.3);
+            margin-bottom: 30px;
+        }
+        .hang-up {
+            background: #ff3b30;
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            margin-top: 60px;
+            border: none; color: white; font-size: 24px;
+        }
     </style>
 </head>
 <body>
 
-<div id="app-container">
-    <div id="header">
-        <div style="font-weight: bold; font-size: 18px;">FLAYKY <span style="color:var(--accent)">OS</span></div>
-        <button class="call-trigger" onclick="openCallMenu()">📞</button>
-    </div>
-
-    <div id="messages"></div>
-
-    <div id="input-area">
-        <input type="text" id="userInput" placeholder="Mensagem...">
-        <button style="background:none; border:none; color:var(--accent); font-weight:bold; margin-left:10px;" onclick="sendMessage()">ENVIAR</button>
-    </div>
+<div id="header">
+    <h1>FLAYKY CORE</h1>
 </div>
 
-<div id="call-overlay">
-    <h2 id="call-title">Escolha a Personalidade</h2>
-    <div class="personality-grid" id="menu-p">
-        <div class="p-card" onclick="startCall('Friendly', 'https://i.imgur.com/8Km9tS9.png')">
-            <img src="https://i.imgur.com/8Km9tS9.png" alt="Friendly">
-            <div>Amigável :3</div>
+<div id="chat-flow">
+    <div class="bubble bot-msg">Sistema Flayky Ultra carregado. Aguardando comandos...</div>
+</div>
+
+<div id="input-container">
+    <button class="action-btn btn-call" onclick="toggleMenu()">📞</button>
+    <input type="text" id="userInput" placeholder="Digite aqui...">
+    <button class="action-btn btn-send" onclick="handleSend()">🚀</button>
+</div>
+
+<div id="call-ui">
+    <div id="selection-menu">
+        <h2 style="color: var(--core-green); margin-bottom: 30px;">Escolha a Versão</h2>
+        
+        <div class="personality-opt" onclick="startCall('Flayky Gamer', 'https://i.imgur.com/w2nZXvP.png')">
+            <img src="https://i.imgur.com/w2nZXvP.png">
+            <span>Flayky Gamer (Godot/FNAF)</span>
         </div>
-        <div class="p-card" onclick="startCall('Gamer', 'https://i.imgur.com/w2nZXvP.png')">
-            <img src="https://i.imgur.com/w2nZXvP.png" alt="Gamer">
-            <div>Gamer/Godot</div>
+
+        <div class="personality-opt" onclick="startCall('Flayky Fusion', 'https://i.imgur.com/bX78shm.png')">
+            <img src="https://i.imgur.com/bX78shm.png">
+            <span>Flayky Fusion (ChatGPT Mode)</span>
         </div>
-        <div class="p-card" onclick="startCall('Horror', 'https://i.imgur.com/6o8mB9X.png')">
-            <img src="https://i.imgur.com/6o8mB9X.png" alt="Horror">
-            <div>Sombria</div>
+
+        <div class="personality-opt" onclick="startCall('Flayky Terror', 'https://i.imgur.com/6o8mB9X.png')">
+            <img src="https://i.imgur.com/6o8mB9X.png">
+            <span>Flayky Dark (Horror Mode)</span>
         </div>
-        <div class="p-card" onclick="startCall('Hybrid', 'https://i.imgur.com/bX78shm.png')">
-            <img src="https://i.imgur.com/bX78shm.png" alt="Hybrid">
-            <div>IA Fusão</div>
-        </div>
+
+        <button onclick="toggleMenu()" style="margin-top: 30px; background: none; border: 1px solid white; color: white; padding: 10px 30px; border-radius: 20px;">Cancelar</button>
     </div>
 
-    <div id="active-call">
-        <img id="call-avatar" class="avatar-call" src="">
-        <h2 id="call-name">Flayky</h2>
-        <div class="call-status">Conectando...</div>
-        <button class="end-call" onclick="endCall()">✖</button>
+    <div id="active-call-screen">
+        <img id="current-photo" class="big-avatar" src="">
+        <h2 id="current-name" style="margin: 10px 0;">Nome</h2>
+        <div style="color: var(--core-green); font-family: monospace;">Chamada em curso...</div>
+        <button class="hang-up" onclick="endCall()">✖</button>
     </div>
 </div>
 
 <script>
-    const chatDisplay = document.getElementById('messages');
-    const userInput = document.getElementById('userInput');
+    const chat = document.getElementById('chat-flow');
+    const input = document.getElementById('userInput');
 
-    // Funções de Chamada
-    function openCallMenu() {
-        document.getElementById('call-overlay').style.display = 'flex';
-        document.getElementById('menu-p').style.display = 'grid';
-        document.getElementById('active-call').style.display = 'none';
-        document.getElementById('call-title').innerText = "Iniciar Chamada";
+    function toggleMenu() {
+        const ui = document.getElementById('call-ui');
+        ui.style.display = ui.style.display === 'flex' ? 'none' : 'flex';
+        document.getElementById('selection-menu').style.display = 'block';
+        document.getElementById('active-call-screen').style.display = 'none';
     }
 
-    function startCall(name, img) {
-        document.getElementById('menu-p').style.display = 'none';
-        document.getElementById('call-title').innerText = "Chamada de Voz";
-        document.getElementById('active-call').style.display = 'flex';
-        document.getElementById('call-avatar').src = img;
-        document.getElementById('call-name').innerText = "Flayky (" + name + ")";
-        
-        setTimeout(() => {
-            document.querySelector('.call-status').innerText = "00:01 • Em call com você";
-        }, 2000);
+    function startCall(name, photo) {
+        document.getElementById('selection-menu').style.display = 'none';
+        document.getElementById('active-call-screen').style.display = 'flex';
+        document.getElementById('current-photo').src = photo;
+        document.getElementById('current-name').innerText = name;
     }
 
     function endCall() {
-        document.getElementById('call-overlay').style.display = 'none';
+        toggleMenu();
     }
 
-    // Lógica de Mensagens Otimizada
-    function sendMessage() {
-        const text = userInput.value.trim();
+    function handleSend() {
+        const text = input.value.trim();
         if(!text) return;
 
-        addMessage('user', text);
-        userInput.value = '';
+        addMsg('user-msg', text);
+        input.value = '';
 
         setTimeout(() => {
-            const response = processAI(text);
-            addMessage('bot', response);
-        }, 700);
+            let reply = "Processando dados no núcleo Flayky...";
+            if(text.toLowerCase().includes('oi')) reply = "Oueieieie! Pronto para mais uma sessão de desenvolvimento? :3";
+            addMsg('bot-msg', reply);
+        }, 800);
     }
 
-    function addMessage(sender, text) {
+    function addMsg(type, text) {
         const div = document.createElement('div');
-        div.classList.add('msg', sender);
+        div.className = `bubble ${type}`;
         div.innerText = text;
-        chatDisplay.appendChild(div);
-        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
     }
-
-    function processAI(t) {
-        t = t.toLowerCase();
-        if(t.includes('oi')) return "Oueieie! Sistema mobile ativo. Como posso ajudar? :3";
-        if(t.includes('horror') || t.includes('fnaf')) return "Cuidado... no escuro, os animatrônicos são mais rápidos. Quer revisar o código do susto?";
-        if(t.includes('godot')) return "A versão 4.6 está excelente para mobile. Já configurou os touch controls?";
-        return "Processando... Meus núcleos híbridos estão analisando sua mensagem! >:3";
-    }
-
-    userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
 </script>
 
 </body>
-    </html>
-    
+</html>
