@@ -3,112 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flayky AI :33 - Fullscreen</title>
+    <title>Flayky AI :33</title>
     <style>
-        /* Estilos globais para fullscreen no celular */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            background: #ffe4e1;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #ffe4e1; font-family: 'Segoe UI', sans-serif; }
+        
+        /* Container Fullscreen */
+        #chat-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+        
+        #header { background: #ff69b4; color: white; padding: 18px; text-align: center; font-weight: bold; font-size: 1.4em; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #fff5f7; }
+        
+        .msg { padding: 12px 16px; border-radius: 20px; max-width: 85%; font-size: 1.1em; line-height: 1.4; position: relative; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Container principal ocupando a tela toda */
-        #chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100vw;
-            background: #ffe4e1;
-        }
+        .user { align-self: flex-end; background: #ff69b4; color: white; border-bottom-right-radius: 2px; }
+        .flayky { align-self: flex-start; background: #ffd1dc; color: #d02090; border-bottom-left-radius: 2px; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
 
-        /* Cabeçalho fixo no topo */
-        #header {
-            background: #ff69b4;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.3em;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            z-index: 10;
-        }
-
-        /* Área de mensagens que expande */
-        #messages {
-            flex: 1; /* Ocupa todo o espaço disponível */
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding-bottom: 80px; /* Espaço para a input area */
-        }
-
-        /* Balões de mensagem */
-        .msg {
-            padding: 12px 18px;
-            border-radius: 20px;
-            max-width: 80%;
-            font-size: 1em;
-            word-wrap: break-word;
-            line-height: 1.4;
-        }
-
-        .user {
-            align-self: flex-end;
-            background: #f0f0f0;
-            color: #333;
-            border-bottom-right-radius: 5px;
-        }
-
-        .flayky {
-            align-self: flex-start;
-            background: #ffc0cb;
-            color: #d02090;
-            border-bottom-left-radius: 5px;
-        }
-
-        /* Área de entrada fixa na parte inferior */
-        #input-area {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            background: white;
-            border-top: 1px solid #eee;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            box-sizing: border-box;
-            z-index: 10;
-        }
-
-        input {
-            flex: 1;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            padding: 12px 15px;
-            outline: none;
-            font-size: 1em;
-        }
-
-        button {
-            background: #ff69b4;
-            border: none;
-            color: white;
-            margin-left: 10px;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            cursor: pointer;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        #input-area { display: flex; padding: 15px; background: white; border-top: 2px solid #ffdae9; }
+        input { flex: 1; border: 2px solid #ffdae9; border-radius: 30px; padding: 12px 20px; outline: none; font-size: 1em; }
+        button { background: #ff69b4; border: none; color: white; margin-left: 10px; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; font-size: 1.5em; transition: 0.2s; }
+        button:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
@@ -116,101 +32,88 @@
 <div id="chat-container">
     <div id="header">Flayky :33 🌸</div>
     <div id="messages">
-        <div class="msg flayky">Oii! Tipo, fala cmg! O q tá rolando? ✨</div>
+        <div class="msg flayky">Oii, miiiga! 💖 Fala cmg, o q tá rolando de bom? ✨</div>
     </div>
     <div id="input-area">
-        <input type="text" id="userInput" placeholder="Manda a letra...">
-        <button onclick="sendMessage()">></button>
+        <input type="text" id="userInput" placeholder="Manda a letra aqui...">
+        <button onclick="sendMessage()">➤</button>
     </div>
 </div>
 
 <script>
-    // Função para enviar e processar mensagens
+    // Salva o progresso no navegador (Local Storage)
+    function saveChat() {
+        localStorage.setItem('flayky_chat', document.getElementById('messages').innerHTML);
+    }
+
+    // Carrega onde parou
+    window.onload = () => {
+        const saved = localStorage.getItem('flayky_chat');
+        if (saved) {
+            document.getElementById('messages').innerHTML = saved;
+            scrollToBottom();
+        }
+    };
+
     function sendMessage() {
         const input = document.getElementById('userInput');
         const msgDiv = document.getElementById('messages');
-        const userText = input.value.trim();
-        
-        if (userText === "") return;
+        const text = input.value.trim();
+        if (!text) return;
 
-        // 1. Adiciona Mensagem do Usuário
-        msgDiv.innerHTML += `<div class="msg user">${userText}</div>`;
-        input.value = ""; // Limpa o input
+        msgDiv.innerHTML += `<div class="msg user">${text}</div>`;
+        input.value = "";
         scrollToBottom();
+        saveChat();
 
-        // 2. Simula o "pensamento" da Flayky e responde
         setTimeout(() => {
-            const resposta = processarCerebro(userText.toLowerCase());
+            const resposta = processarCerebro(text.toLowerCase());
             msgDiv.innerHTML += `<div class="msg flayky">${resposta}</div>`;
             scrollToBottom();
-        }, 800); // Um pouco mais lento para simular IA
+            saveChat();
+        }, 700);
     }
 
-    // Função auxiliar para sempre rolar o chat para baixo
     function scrollToBottom() {
-        const msgDiv = document.getElementById('messages');
-        msgDiv.scrollTop = msgDiv.scrollHeight;
+        const d = document.getElementById('messages');
+        d.scrollTop = d.scrollHeight;
     }
 
-    // Permite enviar com 'Enter'
-    document.getElementById('userInput').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            sendMessage();
-        }
-    });
-
-    // --- CÉREBRO DA FLAYKY (LÓGICA DE RESPOSTA MAIS COERENTE) ---
-    function processarCerebro(texto) {
+    function processarCerebro(t) {
+        // --- SISTEMA DE RESPOSTAS TURBINADO (Contextos) ---
         
-        // Contextos Específicos (para respostas coerentes)
+        if (t.includes("oi") || t.includes("olá") || t.includes("hey")) return "Oii! Tudo mara?? Estava aqui só esperando o babado! ✨💅";
         
-        // 1. Saudações/Início de conversa
-        if (texto.match(/^(oi|olá|hey|fala|eai)/)) {
-            return "Oii, td mara? Tava aqui pensando se ia rolar uma fofoca hoje! kkkk :33";
-        }
+        if (t.includes("como vc ta") || t.includes("tudo bem")) return "Tô 10/10, bem vibe! E vc, como tá esse coraçãozinho? kkkk";
 
-        // 2. Perguntas de "como você está?"
-        if (texto.includes("tudo bem") || texto.includes("td bem") || texto.includes("como vc ta")) {
-            const respostasBem = [
-                "Tô super! Na vibe de ouvir mta música 🎧 E vc?",
-                "Tô mara, só no tédio msm, mas eae? Novidades?",
-                "Eu tô 10/10! Espero q vc tbm esteja!"
-            ];
-            return respostasBem[Math.floor(Math.random() * respostasBem.length)];
-        }
+        if (t.includes("kkk") || t.includes("haha") || t.includes("aks")) return "Kkkkkk ai socorro, vc é mto comédia! Morta! 😂";
 
-        // 3. Risadas (como a que você usou)
-        if (texto.match(/(kkk|haha|rsrs|aks)/)) {
-            const respostasRir = [
-                "Kkkkk mano, morta com vc!",
-                "Socorro kkkkk vc é mto comédia!",
-                "Sério q vc tá rindo disso? Kkkk adoro!",
-                "Kkkkkk ai, o auge!"
-            ];
-            return respostasRir[Math.floor(Math.random() * respostasRir.length)];
-        }
+        if (t.includes("fofoca") || t.includes("babado")) return "Amiga, nem te conto! O auge né? Mas me conta o que vc soube primeiro!! 👀";
 
-        // 4. Se a conversa já estava rolando (como o print que vc mandou onde ela responde "Gente, chocada")
-        // Vamos dar respostas que empurram a conversa pra frente.
-        if (texto.includes("novidade") || texto.includes("fofoca") || texto.includes("q mais")) {
-            return "Vixi, mta coisa kkkk Sla, vc ouviu o novo álbum da...? O auge!";
-        }
+        if (t.includes("música") || t.includes("ouvindo") || t.includes("som")) return "Nossa, tô numa vibe mto indie ultimamente... ou um pop pra animar! E vc? 🎧";
 
-        // 5. Perguntas sobre ela mesma
-        if (texto.includes("quem é você") || texto.includes("vc é")) {
-            return "Eu sou a Flayky, sua bestie virtual que entende tudo das gírias ✨💅 E vc?";
-        }
+        if (t.includes("odeio") || t.includes("triste") || t.includes("aff")) return "Poxa miga, que uó! 🥺 Quer desabafar? Tô aqui real oficial.";
 
-        // 6. Resposta padrão (Caso não entenda o contexto, mas ainda mantendo o tom coerente de "tédio")
-        const respostasDefault = [
-            "Morta kkkkk sério??",
-            "Sla, tipo, não entendi mto bem, mas conta mais!",
-            "Tô nem acreditando nisso kkkk Rlx!",
-            "Aff, o auge viu? Mas eae, q q vc acha?",
-            "Gente, tô chocada. Não entendi nada, mas continuo ouvindo 💅"
+        if (t.includes("comida") || t.includes("fome") || t.includes("pizza")) return "Nossa, nem fala... uma batata frita agora seria TUDO! 🍟";
+
+        if (t.includes("estudar") || t.includes("escola") || t.includes("prova")) return "Ai, nem me fala em escola... o cérebro chega a fritar, né? Uó! 🙄";
+
+        if (t.includes("te amo") || t.includes("linda") || t.includes("perfeita")) return "Awwwn, para! Assim eu fico tímida kkkkk Vc que é perfeita! ✨💖";
+
+        if (t.includes("jogo") || t.includes("game") || t.includes("jogar")) return "Amooo! Qual a call de hoje? Me chama que eu vou! 🎮👾";
+
+        // Respostas Aleatórias de "Adolescente" (Mais de 10 variações automáticas)
+        const variadas = [
+            "Morta kkkk não acredito!", "Gente, o auge viu?", "Sério?? Chocada em 80 línguas! 😱",
+            "Tipo, nada a ver isso aí kkkk", "Sla, o que vc acha disso?", "Passada, não esperava por essa!",
+            "Rlx, vai dar tudo certo, confia na mami! ✨", "Nossa, real oficial?", "Tô sem palavras kkkk absurdo!",
+            "Vibe caótica hoje, né? Adoro kkkk", "Ah pronto, agora o babado ficou sério! 💅"
         ];
-        return respostasDefault[Math.floor(Math.random() * respostasDefault.length)];
+
+        return variadas[Math.floor(Math.random() * variadas.length)];
     }
+
+    document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
 </script>
 
 </body>
