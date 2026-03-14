@@ -3,131 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flayky OS - Advanced AI</title>
+    <title>Flayky AI - Advanced Neural Link</title>
     <style>
         :root {
-            --bg: #050505;
-            --container: #0d0d0d;
-            --accent: #00ff41; /* Verde Matrix/Terminal */
-            --user-msg: #1a1a1a;
-            --bot-text: #e0e0e0;
+            --bg: #0a0a0c;
+            --panel: #121214;
+            --accent: #00f2ff; /* Azul Neon Cyperpunk */
+            --text: #d1d1d1;
+            --user-bg: #1e1e24;
         }
 
         body { 
-            font-family: 'Consolas', 'Courier New', monospace; 
-            background: var(--bg); 
-            color: var(--bot-text); 
-            display: flex; 
-            justify-content: center; 
-            height: 100vh; 
-            margin: 0; 
-            padding: 10px;
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background: var(--bg); color: var(--text); 
+            margin: 0; display: flex; justify-content: center; height: 100vh; 
         }
 
         #chat-container { 
-            width: 100%; 
-            max-width: 600px; 
-            background: var(--container); 
-            border-radius: 8px; 
-            display: flex; 
-            flex-direction: column; 
-            height: 90vh; 
-            border: 1px solid #222; 
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1); 
+            width: 100%; max-width: 700px; background: var(--panel); 
+            display: flex; flex-direction: column; height: 100vh;
+            border-left: 1px solid #222; border-right: 1px solid #222;
         }
 
-        #header {
-            padding: 15px;
-            border-bottom: 1px solid #222;
-            text-align: center;
-            font-weight: bold;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        #header { 
+            padding: 15px; border-bottom: 1px solid #222; text-align: center; 
+            color: var(--accent); font-size: 0.9rem; letter-spacing: 3px; font-weight: bold;
         }
 
-        #messages { 
-            flex-grow: 1; 
-            padding: 20px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-        }
+        #messages { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
 
-        .msg { 
-            padding: 12px 18px; 
-            border-radius: 4px; 
-            max-width: 85%; 
-            line-height: 1.5; 
-            font-size: 14px;
-            position: relative;
-        }
+        .msg { max-width: 85%; line-height: 1.6; font-size: 15px; padding: 10px 15px; border-radius: 12px; }
+        
+        .user { align-self: flex-end; background: var(--user-bg); color: #fff; border-bottom-right-radius: 2px; }
+        
+        .bot { align-self: flex-start; background: transparent; border-left: 2px solid var(--accent); border-radius: 0; }
 
-        .user { 
-            background: var(--user-msg); 
-            align-self: flex-end; 
-            color: #fff; 
-            border-right: 3px solid var(--accent);
-        }
+        code { background: #000; color: #ff79c6; padding: 2px 5px; border-radius: 4px; font-family: monospace; }
+        pre { background: #000; padding: 10px; border-radius: 8px; overflow-x: auto; border: 1px solid #333; }
 
-        .bot { 
-            background: transparent; 
-            align-self: flex-start; 
-            color: var(--bot-text); 
-            border-left: 2px solid #333;
-        }
-
-        /* Efeito de Cursor Piscando */
-        .typing::after {
-            content: '|';
-            animation: blink 0.8s infinite;
-        }
-
-        @keyframes blink { 50% { opacity: 0; } }
-
-        #input-area { 
-            display: flex; 
-            padding: 20px; 
-            background: #0a0a0a; 
-            border-top: 1px solid #222; 
-        }
-
+        #input-area { padding: 20px; background: #0f0f11; display: flex; gap: 10px; border-top: 1px solid #222; }
+        
         input { 
-            flex-grow: 1; 
-            padding: 12px; 
-            border: 1px solid #333; 
-            border-radius: 4px; 
-            background: #000; 
-            color: var(--accent); 
-            outline: none;
+            flex-grow: 1; background: #1a1a1d; border: 1px solid #333; 
+            padding: 12px 15px; border-radius: 8px; color: #fff; outline: none; 
         }
+        
+        input:focus { border-color: var(--accent); }
 
         button { 
-            padding: 0 20px; 
-            margin-left: 10px; 
-            cursor: pointer; 
-            background: transparent; 
-            color: var(--accent); 
-            border: 1px solid var(--accent); 
-            border-radius: 4px; 
-            transition: 0.3s;
-        }
-
-        button:hover { 
-            background: var(--accent); 
-            color: #000; 
+            background: var(--accent); color: #000; border: none; 
+            padding: 0 20px; border-radius: 8px; font-weight: bold; cursor: pointer; 
         }
     </style>
 </head>
 <body>
 
 <div id="chat-container">
-    <div id="header">Flayky Hybrid v2.0</div>
+    <div id="header">FLAYKY NEURAL INTERFACE v3.0</div>
     <div id="messages"></div>
     <div id="input-area">
-        <input type="text" id="userInput" placeholder="Inicie o protocolo de conversa...">
-        <button onclick="sendMessage()">EXECUTAR</button>
+        <input type="text" id="userInput" placeholder="Digite sua mensagem ou comando...">
+        <button onclick="sendMessage()">ENVIAR</button>
     </div>
 </div>
 
@@ -135,76 +71,92 @@
     const chatDisplay = document.getElementById('messages');
     const userInput = document.getElementById('userInput');
 
-    const bancoDados = [
-        { keys: ['oi', 'olá', 'salve'], resp: "Saudações, usuário. Protocolo Flayky iniciado. Como posso processar suas solicitações hoje? :3" },
-        { keys: ['quem é você', 'voce'], resp: "Eu sou a Flayky, uma inteligência híbrida fundindo algoritmos de processamento de linguagem com carisma digital. Sou sua assistente definitiva." },
-        { keys: ['projeto', 'godot', 'jogo'], resp: "Detectado interesse em desenvolvimento. Meus núcleos sugerem focar na otimização do script de movimentação 3D. Quer ajuda com código?" },
-        { keys: ['transformers', 'multiverso'], resp: "Acesso aos arquivos Cybertronianos concedido. Optimus Prime aprovaria seu progresso no projeto Multiverse-Formers." },
-        { keys: ['fnaf', 'horror', 'terror'], resp: "Ativando modo 'Survival Horror'. Lembre-se: as luzes consomem bateria. Deseja que eu gere um roteiro assustador?" }
+    // Banco de Conhecimento com Pesos de Intenção
+    const brain = [
+        { 
+            intent: "saudacao", 
+            keywords: ["oi", "ola", "salve", "bom dia", "tarde", "noite"], 
+            responses: ["Conexão estabelecida. Olá! Como posso ajudar seu desenvolvimento hoje?", "Sistema online. Saudações, mestre! :3"] 
+        },
+        { 
+            intent: "codigo", 
+            keywords: ["script", "codigo", "programar", "html", "javascript", "godot"], 
+            responses: ["Entendido. Ativando módulos de programação. Qual função você deseja otimizar?", "Analizando sintaxe... Estou pronta para gerar scripts para seu projeto."] 
+        },
+        { 
+            intent: "pessoal", 
+            keywords: ["quem e voce", "seu nome", "quem e tu"], 
+            responses: ["Eu sou a Flayky, uma fusão entre lógica avançada e suporte criativo.", "Sou sua interface neural personalizada, treinada para te auxiliar em projetos de horror e Transformers!"] 
+        }
     ];
 
     window.onload = () => {
-        const saved = localStorage.getItem('flayky_v2_history');
+        const saved = localStorage.getItem('flayky_v3');
         if (saved) {
             chatDisplay.innerHTML = saved;
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
         } else {
-            typeMessage("bot", "Sistema carregado. Flayky Híbrida online e pronta para operar.");
+            typeEffect("Flayky online. Aguardando input de dados para processamento...");
         }
     };
-
-    function typeMessage(sender, text) {
-        const div = document.createElement('div');
-        div.classList.add('msg', sender, 'typing');
-        chatDisplay.appendChild(div);
-        
-        let i = 0;
-        function typing() {
-            if (i < text.length) {
-                div.innerText += text.charAt(i);
-                i++;
-                chatDisplay.scrollTop = chatDisplay.scrollHeight;
-                setTimeout(typing, 20); // Velocidade da digitação
-            } else {
-                div.classList.remove('typing');
-                localStorage.setItem('flayky_v2_history', chatDisplay.innerHTML);
-            }
-        }
-        typing();
-    }
 
     function sendMessage() {
         const text = userInput.value.trim();
         if (!text) return;
 
-        // Adiciona mensagem do usuário
-        const userDiv = document.createElement('div');
-        userDiv.classList.add('msg', 'user');
-        userDiv.innerText = text;
-        chatDisplay.appendChild(userDiv);
-        
+        appendMsg('user', text);
         userInput.value = '';
 
-        if (text.toLowerCase().includes('limpar')) {
-            localStorage.removeItem('flayky_v2_history');
-            setTimeout(() => { 
-                chatDisplay.innerHTML = ''; 
-                typeMessage('bot', 'Memória limpa. Sistema reiniciado.');
-            }, 500);
-            return;
+        setTimeout(() => {
+            const response = processInput(text);
+            typeEffect(response);
+        }, 600);
+    }
+
+    function processInput(input) {
+        const cleanInput = input.toLowerCase();
+        
+        // Lógica de "Limpeza"
+        if (cleanInput.includes("limpar") || cleanInput.includes("resetar")) {
+            localStorage.removeItem('flayky_v3');
+            chatDisplay.innerHTML = '';
+            return "Memória formatada com sucesso. Iniciando novo ciclo.";
         }
 
-        // Resposta da IA
-        setTimeout(() => {
-            let respostaFinal = "Interessante... Meus bancos de dados ainda não possuem uma resposta exata, mas como uma IA híbrida, estou aprendendo com essa interação.";
-            
-            for (let item of bancoDados) {
-                if (item.keys.some(k => text.toLowerCase().includes(k))) {
-                    respostaFinal = item.resp;
-                    break;
-                }
+        // Busca por intenção
+        for (let entry of brain) {
+            if (entry.keywords.some(k => cleanInput.includes(k))) {
+                return entry.responses[Math.floor(Math.random() * entry.responses.length)];
             }
-            typeMessage('bot', respostaFinal);
-        }, 800);
+        }
+
+        return "Input recebido, mas sem correspondência exata nos meus núcleos. Pode elaborar mais? Estou analisando o contexto... >:3";
+    }
+
+    function appendMsg(sender, text) {
+        const div = document.createElement('div');
+        div.classList.add('msg', sender);
+        div.innerText = text;
+        chatDisplay.appendChild(div);
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        localStorage.setItem('flayky_v3', chatDisplay.innerHTML);
+    }
+
+    function typeEffect(text) {
+        const div = document.createElement('div');
+        div.classList.add('msg', 'bot');
+        chatDisplay.appendChild(div);
+        
+        let i = 0;
+        const interval = setInterval(() => {
+            div.innerText += text[i];
+            i++;
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+            if (i >= text.length) {
+                clearInterval(interval);
+                localStorage.setItem('flayky_v3', chatDisplay.innerHTML);
+            }
+        }, 25);
     }
 
     userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
