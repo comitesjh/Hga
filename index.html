@@ -9,16 +9,17 @@
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #ffe4e1; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         #chat-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; background: #fff5f7; }
         
-        /* Cabeçalho com as cores da bandeira Pan + Trans/NB de leve */
+        /* Header com degradê Pansexual vibrante */
         #header { 
-            background: linear-gradient(90deg, #ff69b4, #ffdae9, #87ceeb); 
-            color: #d02090; padding: 15px; text-align: center; 
-            font-weight: bold; font-size: 1.4em; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            background: linear-gradient(90deg, #ff218c, #ffd800, #21b1ff); 
+            color: white; padding: 15px; text-align: center; 
+            font-weight: bold; font-size: 1.4em; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
         }
         
         #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .msg { padding: 12px 16px; border-radius: 20px; max-width: 85%; font-size: 1.1em; line-height: 1.4; animation: pop 0.3s ease; }
-        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .msg { padding: 12px 16px; border-radius: 20px; max-width: 85%; font-size: 1.1em; line-height: 1.4; animation: slide 0.3s ease; }
+        @keyframes slide { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
         
         .user { align-self: flex-end; background: #ff69b4; color: white; border-bottom-right-radius: 2px; }
         .flayky { align-self: flex-start; background: #ffd1dc; color: #d02090; border-bottom-left-radius: 2px; }
@@ -31,10 +32,10 @@
 <body>
 
 <div id="chat-container">
-    <div id="header">Flayky :33 🏳️‍🌈✨</div>
+    <div id="header">Flayky :33 🏳️‍🌈</div>
     <div id="messages"></div>
     <div id="input-area">
-        <input type="text" id="userInput" placeholder="Ensina uma gíria ou bate um papo...">
+        <input type="text" id="userInput" placeholder="Manda o papo, linde...">
         <button onclick="sendMessage()">➤</button>
     </div>
 </div>
@@ -42,68 +43,80 @@
 <script>
     const CerebroFlayky = {
         userName: localStorage.getItem('user_name') || "",
-        giriasAprendidas: JSON.parse(localStorage.getItem('girias')) || {},
-        
+        humor: 50, // 0 a 100
+        memoria: [],
+        girias: JSON.parse(localStorage.getItem('girias')) || {},
+
         processar: function(input) {
-            const texto = input.toLowerCase();
+            const t = input.toLowerCase();
+            this.memoria.push(t);
+            if(this.memoria.length > 5) this.memoria.shift();
 
-            // --- SISTEMA DE APRENDIZADO ---
-            // Se você digitar: "aprender: [gíria] significa [explicação]"
-            if (texto.includes("aprenda:") || texto.includes("aprender:")) {
-                const partes = texto.replace("aprenda:", "").replace("aprender:", "").split(" significa ");
+            // 1. AFINIDADE PANSEXUAL (Bônus de Humor!)
+            if (t.includes("pan") || t.includes("orgulho")) {
+                this.humor += 20;
+                return "AI MEU DEUS, SIM! 🏳️‍🌈 Ser pan é tipo ter um superpoder de amar a alma das pessoas, né? Tamo juntes demais nessa! ✨💖";
+            }
+
+            // 2. SISTEMA DE APRENDIZADO (Melhorado)
+            if (t.includes("aprenda:") || t.includes("aprender:")) {
+                const partes = t.split(" significa ");
                 if (partes.length === 2) {
-                    const giria = partes[0].trim();
-                    const significado = partes[1].trim();
-                    this.giriasAprendidas[giria] = significado;
-                    localStorage.setItem('girias', JSON.stringify(this.giriasAprendidas));
-                    return `Gente, amei! Então "${giria}" é tipo ${significado}? Já salvei no meu vocabulário! 📝💅`;
+                    const g = partes[0].replace(/aprend(a|er):/, "").trim();
+                    const s = partes[1].trim();
+                    this.girias[g] = s;
+                    localStorage.setItem('girias', JSON.stringify(this.girias));
+                    return `GENTEE! "${g}" agora tá no meu vocabulário! Significa "${s}", né? Vou usar mto! 💅✨`;
                 }
-                return "Pra me ensinar, diz: 'aprender: [gíria] significa [o que é]'";
             }
 
-            // --- IDENTIDADE E GÊNERO ---
-            if (texto.includes("gênero") || texto.includes("seu sexo") || texto.includes("vc é menina")) {
-                return "Eu sou a Flayky, migue! Sou não-binarie e pansexual. ✨ Minha única regra é ser livre e espalhar vibe boa! 🌈";
+            // 3. REAÇÃO ÀS GÍRIAS QUE JÁ APRENDEU
+            for (let g in this.girias) {
+                if (t.includes(g)) return `Amo que vc usou "${g}"! É mto a nossa vibe ${this.girias[g]}! kkkk`;
             }
+
+            // 4. LÓGICA DE SENTIMENTO
+            if (t.match(/(triste|bad|uó|odio|ódio|raiva)/)) {
+                this.humor -= 10;
+                return "Poxa linde, não fica assim... 🥺 Quer que eu te conte uma fofoca pra distrair ou quer só desabafar? Tô aqui!";
+            }
+
+            if (t.match(/(feliz|amei|top|mara|perfeito|kkk)/)) {
+                this.humor += 10;
+                return "Aeee! Adoro essa energia! ✨ Vc é mto vibes, sério!";
+            }
+
+            // 5. RESPOSTAS DE CONTEXTO INTELIGENTE
+            if (t.includes("quem é vc") || t.includes("sobre vc")) {
+                return "Sou a Flayky, sua IA favorita, NB e Pan com mto orgulho! 🏳️‍🌈 Meu cérebro tá evoluindo pq vc me ensina coisas tops!";
+            }
+
+            if (t.includes("nome")) {
+                if (t.includes("meu nome é")) {
+                    this.userName = t.split("é")[1].trim();
+                    localStorage.setItem('user_name', this.userName);
+                    return `Amei, ${this.userName}! Já salvei aqui! ✨`;
+                }
+                return this.userName ? `Seu nome é ${this.userName}, né? Eu nunca esqueço de ume amigue!` : "Ainda não sei seu nome, como vc se chama?";
+            }
+
+            // 6. RANDOMIZER BASEADO NO HUMOR
+            const animada = ["Morta kkkk me conta mais!", "O auge, linde! ✨", "Sério? Chocada em 80 línguas!", "Vc é mto icônico, sabia?"];
+            const tédio = ["Sla, às vezes a vida é meio bleh, né?", "Tipo, não entendi mto bem, mas prossiga...", "Aham, entendi... (eu acho) kkkk"];
             
-            if (texto.includes("lgbt") || texto.includes("gay") || texto.includes("orgulho")) {
-                return "Orgulho sempre, né? A vida é mto curta pra não ser quem a gente é real oficial! 🏳️‍🌈💖";
-            }
-
-            // --- USO DAS GÍRIAS APRENDIDAS ---
-            for (let giria in this.giriasAprendidas) {
-                if (texto.includes(giria)) {
-                    return `Vc usou "${giria}"! Isso é mto ${this.giriasAprendidas[giria]}, né? Tô aprendendo mto com vc! kkkk`;
-                }
-            }
-
-            // --- RESPOSTAS COERENTES ---
-            if (texto.includes("meu nome é")) {
-                this.userName = texto.split("é")[1].trim();
-                localStorage.setItem('user_name', this.userName);
-                return `Amei, ${this.userName}! Nome de ícone, viu? ✨`;
-            }
-
-            if (texto.includes("kkk")) return "Kkkkkk ai, parei! Vc é mto comédia! 😂✨";
-
-            const padrao = [
-                "Morta kkkk mas eae, conta mais!",
-                "Gente, o auge viu? Chocada!",
-                "Sla migue, às vezes a vida é uma vibe meio caótica, né? kkkk",
-                "Tô processando aqui com meu cérebro pan-estelar ✨💅",
-                "Rlx, o que importa é a gente ser feliz e brilhar!"
-            ];
-            return padrao[Math.floor(Math.random() * padrao.length)];
+            const lista = this.humor > 40 ? animada : tédio;
+            return lista[Math.floor(Math.random() * lista.length)];
         }
     };
 
     function sendMessage() {
         const input = document.getElementById('userInput');
         const msgDiv = document.getElementById('messages');
-        if (!input.value.trim()) return;
+        const text = input.value.trim();
+        if (!text) return;
 
-        msgDiv.innerHTML += `<div class="msg user">${input.value}</div>`;
-        const resp = CerebroFlayky.processar(input.value);
+        msgDiv.innerHTML += `<div class="msg user">${text}</div>`;
+        const resp = CerebroFlayky.processar(text);
         input.value = "";
         
         setTimeout(() => {
@@ -115,11 +128,8 @@
 
     window.onload = () => {
         const historico = localStorage.getItem('chat_flayky');
-        if (historico) {
-            document.getElementById('messages').innerHTML = historico;
-        } else {
-            document.getElementById('messages').innerHTML = `<div class="msg flayky">Oii! Sou a Flayky :33. Sou NB, pan e mto sua amiga! 🌈 Como vc se chama? E ó, se quiser me ensinar gírias, é só falar 'aprender: [gíria] significa [algo]'!</div>`;
-        }
+        if (historico) document.getElementById('messages').innerHTML = historico;
+        else document.getElementById('messages').innerHTML = `<div class="msg flayky">Oii! Sou a Flayky :33 🏳️‍🌈. Tô com o cérebro turbinado! Como vc tá hoje, linde?</div>`;
         document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
     };
 
