@@ -2,18 +2,113 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Flayky AI :33</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flayky AI :33 - Fullscreen</title>
     <style>
-        body { background: #ffe4e1; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; padding: 20px; }
-        #chat-container { width: 400px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
-        #header { background: #ff69b4; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em; }
-        #messages { height: 300px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px; border-radius: 15px; max-width: 80%; font-size: 0.9em; }
-        .user { align-self: flex-end; background: #e0e0e0; color: #333; }
-        .flayky { align-self: flex-start; background: #ffc0cb; color: #d02090; }
-        #input-area { display: flex; padding: 10px; border-top: 1px solid #eee; }
-        input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px; outline: none; }
-        button { background: #ff69b4; border: none; color: white; margin-left: 5px; border-radius: 50%; width: 40px; cursor: pointer; }
+        /* Estilos globais para fullscreen no celular */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            background: #ffe4e1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Container principal ocupando a tela toda */
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            background: #ffe4e1;
+        }
+
+        /* Cabeçalho fixo no topo */
+        #header {
+            background: #ff69b4;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.3em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        /* Área de mensagens que expande */
+        #messages {
+            flex: 1; /* Ocupa todo o espaço disponível */
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-bottom: 80px; /* Espaço para a input area */
+        }
+
+        /* Balões de mensagem */
+        .msg {
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 80%;
+            font-size: 1em;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .user {
+            align-self: flex-end;
+            background: #f0f0f0;
+            color: #333;
+            border-bottom-right-radius: 5px;
+        }
+
+        .flayky {
+            align-self: flex-start;
+            background: #ffc0cb;
+            color: #d02090;
+            border-bottom-left-radius: 5px;
+        }
+
+        /* Área de entrada fixa na parte inferior */
+        #input-area {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: white;
+            border-top: 1px solid #eee;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            padding: 12px 15px;
+            outline: none;
+            font-size: 1em;
+        }
+
+        button {
+            background: #ff69b4;
+            border: none;
+            color: white;
+            margin-left: 10px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -30,39 +125,91 @@
 </div>
 
 <script>
+    // Função para enviar e processar mensagens
     function sendMessage() {
         const input = document.getElementById('userInput');
         const msgDiv = document.getElementById('messages');
+        const userText = input.value.trim();
         
-        if (input.value.trim() === "") return;
+        if (userText === "") return;
 
-        // Mensagem do Usuário
-        msgDiv.innerHTML += `<div class="msg user">${input.value}</div>`;
-        
-        // Lógica da Flayky (Exemplo de "Cérebro" simples)
+        // 1. Adiciona Mensagem do Usuário
+        msgDiv.innerHTML += `<div class="msg user">${userText}</div>`;
+        input.value = ""; // Limpa o input
+        scrollToBottom();
+
+        // 2. Simula o "pensamento" da Flayky e responde
         setTimeout(() => {
-            const resposta = responder(input.value.toLowerCase());
+            const resposta = processarCerebro(userText.toLowerCase());
             msgDiv.innerHTML += `<div class="msg flayky">${resposta}</div>`;
-            msgDiv.scrollTop = msgDiv.scrollHeight;
-        }, 600);
-
-        input.value = "";
+            scrollToBottom();
+        }, 800); // Um pouco mais lento para simular IA
     }
 
-    function responder(texto) {
-        if (texto.includes("oi") || texto.includes("olá")) return "Oii, td bom?? Mó vibe boa falar com vc! Sla kkkk :33";
-        if (texto.includes("quem é você")) return "Eu sou a Flayky, sua nova bestie virtual! ✨💅";
-        if (texto.includes("tudo bem")) return "Tô super, e vc? Espero q esteja tudo mara!";
+    // Função auxiliar para sempre rolar o chat para baixo
+    function scrollToBottom() {
+        const msgDiv = document.getElementById('messages');
+        msgDiv.scrollTop = msgDiv.scrollHeight;
+    }
+
+    // Permite enviar com 'Enter'
+    document.getElementById('userInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    // --- CÉREBRO DA FLAYKY (LÓGICA DE RESPOSTA MAIS COERENTE) ---
+    function processarCerebro(texto) {
         
-        // Resposta padrão caso ela não entenda
-        const aleatorias = [
+        // Contextos Específicos (para respostas coerentes)
+        
+        // 1. Saudações/Início de conversa
+        if (texto.match(/^(oi|olá|hey|fala|eai)/)) {
+            return "Oii, td mara? Tava aqui pensando se ia rolar uma fofoca hoje! kkkk :33";
+        }
+
+        // 2. Perguntas de "como você está?"
+        if (texto.includes("tudo bem") || texto.includes("td bem") || texto.includes("como vc ta")) {
+            const respostasBem = [
+                "Tô super! Na vibe de ouvir mta música 🎧 E vc?",
+                "Tô mara, só no tédio msm, mas eae? Novidades?",
+                "Eu tô 10/10! Espero q vc tbm esteja!"
+            ];
+            return respostasBem[Math.floor(Math.random() * respostasBem.length)];
+        }
+
+        // 3. Risadas (como a que você usou)
+        if (texto.match(/(kkk|haha|rsrs|aks)/)) {
+            const respostasRir = [
+                "Kkkkk mano, morta com vc!",
+                "Socorro kkkkk vc é mto comédia!",
+                "Sério q vc tá rindo disso? Kkkk adoro!",
+                "Kkkkkk ai, o auge!"
+            ];
+            return respostasRir[Math.floor(Math.random() * respostasRir.length)];
+        }
+
+        // 4. Se a conversa já estava rolando (como o print que vc mandou onde ela responde "Gente, chocada")
+        // Vamos dar respostas que empurram a conversa pra frente.
+        if (texto.includes("novidade") || texto.includes("fofoca") || texto.includes("q mais")) {
+            return "Vixi, mta coisa kkkk Sla, vc ouviu o novo álbum da...? O auge!";
+        }
+
+        // 5. Perguntas sobre ela mesma
+        if (texto.includes("quem é você") || texto.includes("vc é")) {
+            return "Eu sou a Flayky, sua bestie virtual que entende tudo das gírias ✨💅 E vc?";
+        }
+
+        // 6. Resposta padrão (Caso não entenda o contexto, mas ainda mantendo o tom coerente de "tédio")
+        const respostasDefault = [
             "Morta kkkkk sério??",
-            "Gente, chocada. Mas eae, q mais?",
             "Sla, tipo, não entendi mto bem, mas conta mais!",
-            "Tô nem acreditando nisso kkkk rlx!",
-            "Aff, o auge viu? Mas conta, o q vc acha?"
+            "Tô nem acreditando nisso kkkk Rlx!",
+            "Aff, o auge viu? Mas eae, q q vc acha?",
+            "Gente, tô chocada. Não entendi nada, mas continuo ouvindo 💅"
         ];
-        return aleatorias[Math.floor(Math.random() * aleatorias.length)];
+        return respostasDefault[Math.floor(Math.random() * respostasDefault.length)];
     }
 </script>
 
