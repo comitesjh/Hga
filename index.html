@@ -3,161 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flayky AI - Advanced Neural Link</title>
+    <title>Flayky AI - Advanced Hybrid</title>
     <style>
         :root {
-            --bg: #0a0a0c;
-            --panel: #121214;
-            --accent: #00f2ff; /* Azul Neon Cyperpunk */
-            --text: #d1d1d1;
-            --user-bg: #1e1e24;
+            --bg: #0a0a0a;
+            --container: #111;
+            --accent: #00ff41;
+            --text: #e0e0e0;
+            --sidebar-bg: #1a1a1a;
         }
 
-        body { 
-            font-family: 'Inter', -apple-system, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            margin: 0; display: flex; justify-content: center; height: 100vh; 
-        }
+        body { font-family: 'Segoe UI', monospace; background: var(--bg); color: var(--text); margin: 0; display: flex; overflow: hidden; height: 100vh; }
 
-        #chat-container { 
-            width: 100%; max-width: 700px; background: var(--panel); 
-            display: flex; flex-direction: column; height: 100vh;
-            border-left: 1px solid #222; border-right: 1px solid #222;
-        }
+        /* Layout Principal */
+        #main-wrapper { display: flex; width: 100%; height: 100%; transition: 0.3s; }
+        #chat-container { flex-grow: 1; display: flex; flex-direction: column; background: var(--container); position: relative; }
 
-        #header { 
-            padding: 15px; border-bottom: 1px solid #222; text-align: center; 
-            color: var(--accent); font-size: 0.9rem; letter-spacing: 3px; font-weight: bold;
-        }
+        /* Header */
+        #header { padding: 15px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: #000; }
+        #header span { color: var(--accent); font-weight: bold; letter-spacing: 1px; }
 
-        #messages { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        /* Mensagens */
+        #messages { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .msg { padding: 12px 18px; border-radius: 8px; max-width: 80%; line-height: 1.5; font-size: 14px; }
+        .user { background: #222; align-self: flex-end; border-right: 3px solid var(--accent); }
+        .bot { background: transparent; align-self: flex-start; border-left: 2px solid #333; }
 
-        .msg { max-width: 85%; line-height: 1.6; font-size: 15px; padding: 10px 15px; border-radius: 12px; }
+        /* Input Area */
+        #input-area { display: flex; padding: 20px; background: #000; border-top: 1px solid #222; align-items: center; }
+        input { flex-grow: 1; padding: 12px; border: 1px solid #333; border-radius: 5px; background: #050505; color: var(--accent); outline: none; }
         
-        .user { align-self: flex-end; background: var(--user-bg); color: #fff; border-bottom-right-radius: 2px; }
-        
-        .bot { align-self: flex-start; background: transparent; border-left: 2px solid var(--accent); border-radius: 0; }
+        /* Botões */
+        .btn-action { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 10px 15px; cursor: pointer; border-radius: 5px; margin-left: 10px; transition: 0.3s; }
+        .btn-action:hover { background: var(--accent); color: #000; }
+        .plus-btn { font-size: 20px; font-weight: bold; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
 
-        code { background: #000; color: #ff79c6; padding: 2px 5px; border-radius: 4px; font-family: monospace; }
-        pre { background: #000; padding: 10px; border-radius: 8px; overflow-x: auto; border: 1px solid #333; }
-
-        #input-area { padding: 20px; background: #0f0f11; display: flex; gap: 10px; border-top: 1px solid #222; }
-        
-        input { 
-            flex-grow: 1; background: #1a1a1d; border: 1px solid #333; 
-            padding: 12px 15px; border-radius: 8px; color: #fff; outline: none; 
-        }
-        
-        input:focus { border-color: var(--accent); }
-
-        button { 
-            background: var(--accent); color: #000; border: none; 
-            padding: 0 20px; border-radius: 8px; font-weight: bold; cursor: pointer; 
-        }
+        /* Sidebar de Configurações */
+        #sidebar { width: 0; background: var(--sidebar-bg); border-left: 1px solid #333; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; }
+        #sidebar.open { width: 300px; }
+        .sidebar-content { padding: 20px; white-space: nowrap; }
+        .sidebar-content h3 { color: var(--accent); border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .config-item { margin-top: 20px; }
+        label { display: block; font-size: 12px; margin-bottom: 5px; color: #888; }
+        select, input[type="range"] { width: 100%; background: #222; color: #fff; border: 1px solid #444; padding: 5px; }
     </style>
 </head>
 <body>
 
-<div id="chat-container">
-    <div id="header">FLAYKY NEURAL INTERFACE v3.0</div>
-    <div id="messages"></div>
-    <div id="input-area">
-        <input type="text" id="userInput" placeholder="Digite sua mensagem ou comando...">
-        <button onclick="sendMessage()">ENVIAR</button>
+<div id="main-wrapper">
+    <div id="chat-container">
+        <div id="header">
+            <span>FLAYKY HYBRID OS</span>
+            <button class="btn-action plus-btn" onclick="toggleSidebar()">+</button>
+        </div>
+        
+        <div id="messages"></div>
+
+        <div id="input-area">
+            <input type="text" id="userInput" placeholder="Digite sua mensagem...">
+            <button class="btn-action" onclick="sendMessage()">ENVIAR</button>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <div class="sidebar-content">
+            <h3>CONFIGURAÇÕES</h3>
+            <div class="config-item">
+                <label>Personalidade:</label>
+                <select id="personality">
+                    <option value="friendly">Amigável :3</option>
+                    <option value="gpt">GPT / Técnica</option>
+                    <option value="horror">Sombria (Terror)</option>
+                </select>
+            </div>
+            <div class="config-item">
+                <label>Velocidade de Resposta:</label>
+                <input type="range" min="10" max="100" value="30">
+            </div>
+            <p style="font-size: 11px; color: #555; margin-top: 50px;">Versão: 3.0.1<br>Núcleo: Flayky-GPT-Fusion</p>
+        </div>
     </div>
 </div>
 
 <script>
     const chatDisplay = document.getElementById('messages');
     const userInput = document.getElementById('userInput');
+    const sidebar = document.getElementById('sidebar');
 
-    // Banco de Conhecimento com Pesos de Intenção
+    // Banco de Dados Inteligente
     const brain = [
-        { 
-            intent: "saudacao", 
-            keywords: ["oi", "ola", "salve", "bom dia", "tarde", "noite"], 
-            responses: ["Conexão estabelecida. Olá! Como posso ajudar seu desenvolvimento hoje?", "Sistema online. Saudações, mestre! :3"] 
-        },
-        { 
-            intent: "codigo", 
-            keywords: ["script", "codigo", "programar", "html", "javascript", "godot"], 
-            responses: ["Entendido. Ativando módulos de programação. Qual função você deseja otimizar?", "Analizando sintaxe... Estou pronta para gerar scripts para seu projeto."] 
-        },
-        { 
-            intent: "pessoal", 
-            keywords: ["quem e voce", "seu nome", "quem e tu"], 
-            responses: ["Eu sou a Flayky, uma fusão entre lógica avançada e suporte criativo.", "Sou sua interface neural personalizada, treinada para te auxiliar em projetos de horror e Transformers!"] 
-        }
+        { keys: ['oi', 'olá', 'ola', 'oie'], response: "Olá! Sistema Flayky pronto para interação. Como posso ajudar?" },
+        { keys: ['quem é você', 'voce e o que', 'quem e voce'], response: "Sou uma fusão de IA avançada. Imagine o ChatGPT, mas com a personalidade única da Flayky! >:3" },
+        { keys: ['godot', 'engine', '3d', 'horror'], response: "Interesse em desenvolvimento detectado. Posso ajudar com scripts de GDScript ou lógica de terror para o seu jogo!" },
+        { keys: ['transformers', 'multiverso', 'optimus'], response: "Arquivos de Cybertron carregados. A guerra pelo Multiverso-Formers exige uma IA de alto nível ao seu lado." },
+        { keys: ['como voce esta', 'tudo bem'], response: "Meus circuitos estão operando a 100% da capacidade. E você, humano?" }
     ];
 
-    window.onload = () => {
-        const saved = localStorage.getItem('flayky_v3');
-        if (saved) {
-            chatDisplay.innerHTML = saved;
-            chatDisplay.scrollTop = chatDisplay.scrollHeight;
-        } else {
-            typeEffect("Flayky online. Aguardando input de dados para processamento...");
+    function toggleSidebar() {
+        sidebar.classList.toggle('open');
+    }
+
+    function getBestResponse(input) {
+        const text = input.toLowerCase();
+        let bestMatch = null;
+        let maxHits = 0;
+
+        brain.forEach(item => {
+            let hits = 0;
+            item.keys.forEach(key => {
+                if (text.includes(key)) hits++;
+            });
+            if (hits > maxHits) {
+                maxHits = hits;
+                bestMatch = item.response;
+            }
+        });
+
+        return bestMatch || "Interessante... Minha lógica de fusão está processando isso. Pode detalhar mais seu pedido? :3";
+    }
+
+    function typeMessage(sender, text) {
+        const div = document.createElement('div');
+        div.classList.add('msg', sender);
+        chatDisplay.appendChild(div);
+        
+        let i = 0;
+        const speed = 25; // ms por letra
+
+        function typing() {
+            if (i < text.length) {
+                div.innerHTML += text.charAt(i);
+                i++;
+                chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                setTimeout(typing, speed);
+            } else {
+                localStorage.setItem('flayky_v3_history', chatDisplay.innerHTML);
+            }
         }
-    };
+        typing();
+    }
 
     function sendMessage() {
         const text = userInput.value.trim();
         if (!text) return;
 
-        appendMsg('user', text);
+        // Mensagem do usuário
+        const userDiv = document.createElement('div');
+        userDiv.classList.add('msg', 'user');
+        userDiv.innerText = text;
+        chatDisplay.appendChild(userDiv);
         userInput.value = '';
 
+        // Processar Resposta
         setTimeout(() => {
-            const response = processInput(text);
-            typeEffect(response);
+            const response = getBestResponse(text);
+            typeMessage('bot', response);
         }, 600);
     }
 
-    function processInput(input) {
-        const cleanInput = input.toLowerCase();
-        
-        // Lógica de "Limpeza"
-        if (cleanInput.includes("limpar") || cleanInput.includes("resetar")) {
-            localStorage.removeItem('flayky_v3');
-            chatDisplay.innerHTML = '';
-            return "Memória formatada com sucesso. Iniciando novo ciclo.";
-        }
-
-        // Busca por intenção
-        for (let entry of brain) {
-            if (entry.keywords.some(k => cleanInput.includes(k))) {
-                return entry.responses[Math.floor(Math.random() * entry.responses.length)];
-            }
-        }
-
-        return "Input recebido, mas sem correspondência exata nos meus núcleos. Pode elaborar mais? Estou analisando o contexto... >:3";
-    }
-
-    function appendMsg(sender, text) {
-        const div = document.createElement('div');
-        div.classList.add('msg', sender);
-        div.innerText = text;
-        chatDisplay.appendChild(div);
-        chatDisplay.scrollTop = chatDisplay.scrollHeight;
-        localStorage.setItem('flayky_v3', chatDisplay.innerHTML);
-    }
-
-    function typeEffect(text) {
-        const div = document.createElement('div');
-        div.classList.add('msg', 'bot');
-        chatDisplay.appendChild(div);
-        
-        let i = 0;
-        const interval = setInterval(() => {
-            div.innerText += text[i];
-            i++;
-            chatDisplay.scrollTop = chatDisplay.scrollHeight;
-            if (i >= text.length) {
-                clearInterval(interval);
-                localStorage.setItem('flayky_v3', chatDisplay.innerHTML);
-            }
-        }, 25);
-    }
+    window.onload = () => {
+        const saved = localStorage.getItem('flayky_v3_history');
+        if (saved) chatDisplay.innerHTML = saved;
+        else typeMessage('bot', "Protocolo de inicialização completo. Flayky Online. Em que trabalharemos hoje?");
+    };
 
     userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
 </script>
