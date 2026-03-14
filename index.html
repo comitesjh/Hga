@@ -2,127 +2,68 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flayky Ultra - Core Edition</title>
+    <title>Flayky AI :33</title>
     <style>
-        :root {
-            --bg: #000;
-            --core: #00ff00;
-            --bot-bubble: #1a1a1a;
-            --user-bubble: #007aff;
-        }
-
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* Header Estilo Print */
-        #header { padding: 15px; text-align: center; border-bottom: 1px solid #111; font-weight: bold; color: var(--core); letter-spacing: 2px; font-size: 14px; }
-
-        /* Chat */
-        #chat { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 12px 16px; border-radius: 20px; max-width: 80%; font-size: 15px; line-height: 1.4; }
-        .bot { background: var(--bot-bubble); align-self: flex-start; color: #eee; }
-        .user { background: var(--user-bubble); align-self: flex-end; }
-
-        /* Área do Teclado e Botão Laranja (+) */
-        #bottom-bar { 
-            padding: 10px; 
-            background: #080808; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            border-top: 1px solid #111;
-        }
-
-        /* O Botão + no lugar do quadrado laranja */
-        .plus-btn {
-            width: 45px; height: 45px;
-            background: #ff9800; /* Cor Laranja da sua marcação */
-            border: none; border-radius: 12px;
-            color: black; font-size: 24px; font-weight: bold;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-        }
-
-        .call-btn { width: 45px; height: 45px; background: #00d200; border-radius: 50%; border: none; font-size: 20px; }
-
-        input { 
-            flex-grow: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; 
-            border-radius: 25px; color: white; padding: 0 15px; outline: none; font-size: 16px;
-        }
-
-        .send-btn { width: 45px; height: 45px; background: #333; border: none; border-radius: 50%; color: var(--core); }
-
-        /* Overlay de Config/Call */
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        body { background: #ffe4e1; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; padding: 20px; }
+        #chat-container { width: 400px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        #header { background: #ff69b4; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em; }
+        #messages { height: 300px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px; border-radius: 15px; max-width: 80%; font-size: 0.9em; }
+        .user { align-self: flex-end; background: #e0e0e0; color: #333; }
+        .flayky { align-self: flex-start; background: #ffc0cb; color: #d02090; }
+        #input-area { display: flex; padding: 10px; border-top: 1px solid #eee; }
+        input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px; outline: none; }
+        button { background: #ff69b4; border: none; color: white; margin-left: 5px; border-radius: 50%; width: 40px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="header">FLAYKY CORE</div>
-
-<div id="chat" id="chatFlow">
-    <div class="msg bot">Núcleo Flayky Ultra Online. Como posso processar suas ideias hoje? :3</div>
-</div>
-
-<div id="bottom-bar">
-    <button class="plus-btn" onclick="openMenu()">+</button>
-    <button class="call-btn" onclick="openCall()">📞</button>
-    <input type="text" id="userInput" placeholder="Tudo bem??">
-    <button class="send-btn" onclick="processOutput()">🚀</button>
+<div id="chat-container">
+    <div id="header">Flayky :33 🌸</div>
+    <div id="messages">
+        <div class="msg flayky">Oii! Tipo, fala cmg! O q tá rolando? ✨</div>
+    </div>
+    <div id="input-area">
+        <input type="text" id="userInput" placeholder="Manda a letra...">
+        <button onclick="sendMessage()">></button>
+    </div>
 </div>
 
 <script>
-    const chat = document.getElementById('chat');
-    const input = document.getElementById('userInput');
+    function sendMessage() {
+        const input = document.getElementById('userInput');
+        const msgDiv = document.getElementById('messages');
+        
+        if (input.value.trim() === "") return;
 
-    // Cérebro Melhorado (Lógica de Texto e Contexto)
-    const brain = [
-        { keys: ['tudo bem', 'como vai', 'td bem'], response: "Tudo operando em 100%! Meus circuitos estão prontos para criar algo incrível com você. :3" },
-        { keys: ['texto', 'escreva', 'roteiro', 'historia'], response: "Claro! Como sou uma IA híbrida, posso gerar textos longos. Sobre o que você quer escrever? Posso criar um roteiro de terror ou uma lore de Transformers! >:3" },
-        { keys: ['godot', 'script', 'codigo'], response: "Detectado interesse em dev. Posso gerar funções em GDScript ou te ajudar com a lógica do seu jogo 3D no mobile!" },
-        { keys: ['transformers', 'optimus', 'bumblebee'], response: "Acesso aos arquivos de Cybertron. O multiverso Transformers é vasto... qual linha do tempo vamos explorar?" }
-    ];
-
-    function processOutput() {
-        const text = input.value.trim();
-        if(!text) return;
-
-        addMsg('user', text);
-        input.value = '';
-
-        // Simulação de "Pensamento" para textos mais longos
+        // Mensagem do Usuário
+        msgDiv.innerHTML += `<div class="msg user">${input.value}</div>`;
+        
+        // Lógica da Flayky (Exemplo de "Cérebro" simples)
         setTimeout(() => {
-            let reply = "Entendi o seu comando. Como uma fusão de IA, estou analisando a melhor forma de responder isso corretamente para você! :P";
-            
-            const lowText = text.toLowerCase();
-            for(let item of brain) {
-                if(item.keys.some(k => lowText.includes(k))) {
-                    reply = item.response;
-                    break;
-                }
-            }
+            const resposta = responder(input.value.toLowerCase());
+            msgDiv.innerHTML += `<div class="msg flayky">${resposta}</div>`;
+            msgDiv.scrollTop = msgDiv.scrollHeight;
+        }, 600);
 
-            // Exemplo de geração de texto se pedir história
-            if(lowText.includes('historia') || lowText.includes('roteiro')) {
-                reply = "Aqui está um início de texto: 'As luzes da pizzaria começaram a piscar. O silêncio era interrompido apenas pelo som metálico vindo do corredor leste...' Quer que eu continue?";
-            }
-
-            addMsg('bot', reply);
-        }, 800);
+        input.value = "";
     }
 
-    function addMsg(type, text) {
-        const div = document.createElement('div');
-        div.className = `msg ${type}`;
-        div.innerText = text;
-        chat.appendChild(div);
-        chat.scrollTop = chat.scrollHeight;
+    function responder(texto) {
+        if (texto.includes("oi") || texto.includes("olá")) return "Oii, td bom?? Mó vibe boa falar com vc! Sla kkkk :33";
+        if (texto.includes("quem é você")) return "Eu sou a Flayky, sua nova bestie virtual! ✨💅";
+        if (texto.includes("tudo bem")) return "Tô super, e vc? Espero q esteja tudo mara!";
+        
+        // Resposta padrão caso ela não entenda
+        const aleatorias = [
+            "Morta kkkkk sério??",
+            "Gente, chocada. Mas eae, q mais?",
+            "Sla, tipo, não entendi mto bem, mas conta mais!",
+            "Tô nem acreditando nisso kkkk rlx!",
+            "Aff, o auge viu? Mas conta, o q vc acha?"
+        ];
+        return aleatorias[Math.floor(Math.random() * aleatorias.length)];
     }
-
-    function openMenu() { alert("Abrindo Configurações da Flayky..."); }
-    function openCall() { alert("Iniciando interface de chamada..."); }
-
-    input.addEventListener("keypress", (e) => { if(e.key === "Enter") processOutput(); });
 </script>
 
 </body>
