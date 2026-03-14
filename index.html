@@ -3,225 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flayky Ultra - Call Edition</title>
+    <title>Flayky Ultra - Core Edition</title>
     <style>
         :root {
-            --bg: #000000;
-            --core-green: #00ff00;
-            --dark-grey: #121212;
-            --user-blue: #007aff;
+            --bg: #000;
+            --core: #00ff00;
+            --bot-bubble: #1a1a1a;
+            --user-bubble: #007aff;
         }
 
-        body { 
-            font-family: 'Inter', -apple-system, sans-serif; 
-            background: var(--bg); 
-            color: white; 
-            margin: 0; 
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* Header Estilo Print */
+        #header { padding: 15px; text-align: center; border-bottom: 1px solid #111; font-weight: bold; color: var(--core); letter-spacing: 2px; font-size: 14px; }
+
+        /* Chat */
+        #chat { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 12px 16px; border-radius: 20px; max-width: 80%; font-size: 15px; line-height: 1.4; }
+        .bot { background: var(--bot-bubble); align-self: flex-start; color: #eee; }
+        .user { background: var(--user-bubble); align-self: flex-end; }
+
+        /* Área do Teclado e Botão Laranja (+) */
+        #bottom-bar { 
+            padding: 10px; 
+            background: #080808; 
             display: flex; 
-            flex-direction: column; 
-            height: 100vh;
-            overflow: hidden;
+            align-items: center; 
+            gap: 8px; 
+            border-top: 1px solid #111;
         }
 
-        /* Header inspirado na sua print */
-        #header {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid #1a1a1a;
-            background: var(--bg);
-        }
-        #header h1 {
-            color: var(--core-green);
-            font-size: 16px;
-            letter-spacing: 3px;
-            margin: 0;
-            text-transform: uppercase;
-            font-weight: 900;
-        }
-
-        /* Chat Area */
-        #chat-flow {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .bubble {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 20px;
-            font-size: 15px;
-            line-height: 1.4;
-        }
-        .bot-msg { background: var(--dark-grey); align-self: flex-start; border: 1px solid #333; color: #eee; }
-        .user-msg { background: var(--user-blue); align-self: flex-end; color: white; }
-
-        /* Teclado Mobile Melhorado */
-        #input-container {
-            padding: 15px;
-            background: #080808;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-top: 1px solid #1a1a1a;
-        }
-        input {
-            flex-grow: 1;
-            background: #1a1a1a;
-            border: none;
-            padding: 15px 20px;
-            border-radius: 30px;
-            color: white;
-            outline: none;
-            font-size: 16px;
-        }
-        .action-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* O Botão + no lugar do quadrado laranja */
+        .plus-btn {
+            width: 45px; height: 45px;
+            background: #ff9800; /* Cor Laranja da sua marcação */
+            border: none; border-radius: 12px;
+            color: black; font-size: 24px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .btn-call { background: var(--core-green); color: black; font-size: 20px; }
-        .btn-send { background: #333; color: var(--core-green); }
 
-        /* Menu de Personalidade e Call */
-        #call-ui {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); z-index: 100; display: none;
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-        .personality-opt {
-            background: var(--dark-grey);
-            padding: 20px;
-            margin: 10px;
-            border-radius: 15px;
-            width: 80%;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border: 1px solid #222;
-        }
-        .personality-opt img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+        .call-btn { width: 45px; height: 45px; background: #00d200; border-radius: 50%; border: none; font-size: 20px; }
 
-        /* Tela de Ligação Ativa */
-        #active-call-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
+        input { 
+            flex-grow: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; 
+            border-radius: 25px; color: white; padding: 0 15px; outline: none; font-size: 16px;
         }
-        .big-avatar {
-            width: 180px; height: 180px;
-            border-radius: 50%;
-            border: 4px solid var(--core-green);
-            box-shadow: 0 0 40px rgba(0, 255, 0, 0.3);
-            margin-bottom: 30px;
-        }
-        .hang-up {
-            background: #ff3b30;
-            width: 70px; height: 70px;
-            border-radius: 50%;
-            margin-top: 60px;
-            border: none; color: white; font-size: 24px;
-        }
+
+        .send-btn { width: 45px; height: 45px; background: #333; border: none; border-radius: 50%; color: var(--core); }
+
+        /* Overlay de Config/Call */
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-<div id="header">
-    <h1>FLAYKY CORE</h1>
+<div id="header">FLAYKY CORE</div>
+
+<div id="chat" id="chatFlow">
+    <div class="msg bot">Núcleo Flayky Ultra Online. Como posso processar suas ideias hoje? :3</div>
 </div>
 
-<div id="chat-flow">
-    <div class="bubble bot-msg">Sistema Flayky Ultra carregado. Aguardando comandos...</div>
-</div>
-
-<div id="input-container">
-    <button class="action-btn btn-call" onclick="toggleMenu()">📞</button>
-    <input type="text" id="userInput" placeholder="Digite aqui...">
-    <button class="action-btn btn-send" onclick="handleSend()">🚀</button>
-</div>
-
-<div id="call-ui">
-    <div id="selection-menu">
-        <h2 style="color: var(--core-green); margin-bottom: 30px;">Escolha a Versão</h2>
-        
-        <div class="personality-opt" onclick="startCall('Flayky Gamer', 'https://i.imgur.com/w2nZXvP.png')">
-            <img src="https://i.imgur.com/w2nZXvP.png">
-            <span>Flayky Gamer (Godot/FNAF)</span>
-        </div>
-
-        <div class="personality-opt" onclick="startCall('Flayky Fusion', 'https://i.imgur.com/bX78shm.png')">
-            <img src="https://i.imgur.com/bX78shm.png">
-            <span>Flayky Fusion (ChatGPT Mode)</span>
-        </div>
-
-        <div class="personality-opt" onclick="startCall('Flayky Terror', 'https://i.imgur.com/6o8mB9X.png')">
-            <img src="https://i.imgur.com/6o8mB9X.png">
-            <span>Flayky Dark (Horror Mode)</span>
-        </div>
-
-        <button onclick="toggleMenu()" style="margin-top: 30px; background: none; border: 1px solid white; color: white; padding: 10px 30px; border-radius: 20px;">Cancelar</button>
-    </div>
-
-    <div id="active-call-screen">
-        <img id="current-photo" class="big-avatar" src="">
-        <h2 id="current-name" style="margin: 10px 0;">Nome</h2>
-        <div style="color: var(--core-green); font-family: monospace;">Chamada em curso...</div>
-        <button class="hang-up" onclick="endCall()">✖</button>
-    </div>
+<div id="bottom-bar">
+    <button class="plus-btn" onclick="openMenu()">+</button>
+    <button class="call-btn" onclick="openCall()">📞</button>
+    <input type="text" id="userInput" placeholder="Tudo bem??">
+    <button class="send-btn" onclick="processOutput()">🚀</button>
 </div>
 
 <script>
-    const chat = document.getElementById('chat-flow');
+    const chat = document.getElementById('chat');
     const input = document.getElementById('userInput');
 
-    function toggleMenu() {
-        const ui = document.getElementById('call-ui');
-        ui.style.display = ui.style.display === 'flex' ? 'none' : 'flex';
-        document.getElementById('selection-menu').style.display = 'block';
-        document.getElementById('active-call-screen').style.display = 'none';
-    }
+    // Cérebro Melhorado (Lógica de Texto e Contexto)
+    const brain = [
+        { keys: ['tudo bem', 'como vai', 'td bem'], response: "Tudo operando em 100%! Meus circuitos estão prontos para criar algo incrível com você. :3" },
+        { keys: ['texto', 'escreva', 'roteiro', 'historia'], response: "Claro! Como sou uma IA híbrida, posso gerar textos longos. Sobre o que você quer escrever? Posso criar um roteiro de terror ou uma lore de Transformers! >:3" },
+        { keys: ['godot', 'script', 'codigo'], response: "Detectado interesse em dev. Posso gerar funções em GDScript ou te ajudar com a lógica do seu jogo 3D no mobile!" },
+        { keys: ['transformers', 'optimus', 'bumblebee'], response: "Acesso aos arquivos de Cybertron. O multiverso Transformers é vasto... qual linha do tempo vamos explorar?" }
+    ];
 
-    function startCall(name, photo) {
-        document.getElementById('selection-menu').style.display = 'none';
-        document.getElementById('active-call-screen').style.display = 'flex';
-        document.getElementById('current-photo').src = photo;
-        document.getElementById('current-name').innerText = name;
-    }
-
-    function endCall() {
-        toggleMenu();
-    }
-
-    function handleSend() {
+    function processOutput() {
         const text = input.value.trim();
         if(!text) return;
 
-        addMsg('user-msg', text);
+        addMsg('user', text);
         input.value = '';
 
+        // Simulação de "Pensamento" para textos mais longos
         setTimeout(() => {
-            let reply = "Processando dados no núcleo Flayky...";
-            if(text.toLowerCase().includes('oi')) reply = "Oueieieie! Pronto para mais uma sessão de desenvolvimento? :3";
-            addMsg('bot-msg', reply);
+            let reply = "Entendi o seu comando. Como uma fusão de IA, estou analisando a melhor forma de responder isso corretamente para você! :P";
+            
+            const lowText = text.toLowerCase();
+            for(let item of brain) {
+                if(item.keys.some(k => lowText.includes(k))) {
+                    reply = item.response;
+                    break;
+                }
+            }
+
+            // Exemplo de geração de texto se pedir história
+            if(lowText.includes('historia') || lowText.includes('roteiro')) {
+                reply = "Aqui está um início de texto: 'As luzes da pizzaria começaram a piscar. O silêncio era interrompido apenas pelo som metálico vindo do corredor leste...' Quer que eu continue?";
+            }
+
+            addMsg('bot', reply);
         }, 800);
     }
 
     function addMsg(type, text) {
         const div = document.createElement('div');
-        div.className = `bubble ${type}`;
+        div.className = `msg ${type}`;
         div.innerText = text;
         chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
     }
+
+    function openMenu() { alert("Abrindo Configurações da Flayky..."); }
+    function openCall() { alert("Iniciando interface de chamada..."); }
+
+    input.addEventListener("keypress", (e) => { if(e.key === "Enter") processOutput(); });
 </script>
 
 </body>
