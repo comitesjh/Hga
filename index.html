@@ -2,181 +2,178 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flayky Ultra - Call Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flayky Mobile OS</title>
     <style>
         :root {
-            --bg: #050505;
+            --bg: #080808;
+            --card: #141414;
             --accent: #00ff41;
-            --glass: rgba(20, 20, 20, 0.9);
-            --neon-blue: #00d2ff;
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* Interface Principal */
-        #chat-app { display: flex; flex-direction: column; height: 100vh; transition: 0.5s; }
+        /* Layout Principal */
+        #app-container { display: flex; flex-direction: column; height: 100vh; position: relative; }
 
-        /* Teclado e Input Melhorado */
-        #input-area { 
-            padding: 15px; 
-            background: #000; 
-            border-top: 1px solid #222; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px;
-            box-shadow: 0 -5px 15px rgba(0,255,65,0.1);
-        }
-
-        input { 
-            flex-grow: 1; 
-            padding: 15px; 
-            background: #111; 
-            border: 1px solid #333; 
-            border-radius: 12px; 
-            color: var(--accent); 
-            outline: none;
-            font-family: 'Consolas', monospace;
-        }
-
-        /* Botão Hexagonal Estiloso */
-        .hex-btn {
-            width: 50px; height: 45px;
-            background: var(--accent);
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        /* Header com Botão Especial */
+        #header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 10; border-bottom: 1px solid #222; }
+        
+        /* Botão Call Estilizado (Hexágono ou Circunferência Tecnológica) */
+        .call-trigger {
+            width: 45px; height: 45px;
+            background: linear-gradient(135deg, #00ff41, #008f11);
+            border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border: none; color: #000; font-weight: bold;
-            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+            cursor: pointer; border: none; font-size: 20px;
         }
-        .hex-btn:hover { transform: scale(1.1) rotate(10deg); filter: brightness(1.2); }
 
-        /* Tela de Chamada */
-        #call-screen {
+        /* Área de Mensagens Otimizada para Mobile */
+        #messages { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
+        .msg { padding: 12px 15px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.4; animation: fadeIn 0.3s; }
+        .user { align-self: flex-end; background: #222; border-bottom-right-radius: 4px; color: #00ff41; }
+        .bot { align-self: flex-start; background: var(--card); border-bottom-left-radius: 4px; border: 1px solid #333; }
+
+        /* Teclado e Input Mobile */
+        #input-area { 
+            position: fixed; bottom: 0; width: 100%; 
+            background: rgba(10,10,10,0.95); padding: 10px; 
+            display: flex; align-items: center; box-sizing: border-box;
+            border-top: 1px solid #222;
+        }
+        input { 
+            flex-grow: 1; height: 45px; background: #1a1a1a; border: 1px solid #333; 
+            border-radius: 25px; color: white; padding: 0 20px; outline: none; font-size: 16px; 
+        }
+
+        /* Overlay de Chamada / Personalidade */
+        #call-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 1000;
+            background: #000; z-index: 100; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
         }
+        .personality-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+        .p-card { background: #111; padding: 15px; border-radius: 15px; border: 1px solid #333; cursor: pointer; }
+        .p-card img { width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--accent); }
 
-        #avatar-call {
-            width: 200px; height: 200px; border-radius: 50%;
-            border: 4px solid var(--accent); box-shadow: 0 0 30px var(--accent);
-            object-fit: cover; margin-bottom: 20px;
-        }
+        /* Tela de Chamada Ativa */
+        #active-call { display: none; flex-direction: column; align-items: center; position: relative; }
+        .avatar-call { width: 150px; height: 150px; border-radius: 50%; margin-top: 50px; border: 4px solid var(--accent); box-shadow: 0 0 30px var(--accent); }
+        .call-status { margin-top: 20px; font-size: 18px; color: var(--accent); }
+        .end-call { margin-top: 100px; background: #ff3b30; width: 70px; height: 70px; border-radius: 50%; border: none; color: white; font-size: 24px; }
 
-        .pulsing { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-        /* Modal de Configuração de Chamada */
-        #config-modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: var(--glass); border: 1px solid var(--accent);
-            padding: 30px; border-radius: 20px; display: none; z-index: 2000;
-            backdrop-filter: blur(10px); width: 80%; max-width: 400px;
-        }
-
-        .option-group { margin-bottom: 15px; }
-        select, input[type="text"] { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; }
-
-        .btn-call-start { 
-            width: 100%; padding: 15px; background: var(--accent); 
-            border: none; border-radius: 10px; font-weight: bold; cursor: pointer;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div id="chat-app">
-    <div id="header" style="padding:20px; border-bottom:1px solid #222; text-align: center; color: var(--accent); font-weight: bold;">FLAYKY CORE</div>
-    <div id="messages" style="flex-grow:1; overflow-y:auto; padding:20px;"></div>
-    
+<div id="app-container">
+    <div id="header">
+        <div style="font-weight: bold; font-size: 18px;">FLAYKY <span style="color:var(--accent)">OS</span></div>
+        <button class="call-trigger" onclick="openCallMenu()">📞</button>
+    </div>
+
+    <div id="messages"></div>
+
     <div id="input-area">
-        <input type="text" id="userInput" placeholder="Digite uma mensagem...">
-        <button class="hex-btn" onclick="openCallConfig()">📞</button>
-        <button onclick="sendMessage()" style="background:none; border:none; color:var(--accent); cursor:pointer; font-weight:bold;">ENVIAR</button>
+        <input type="text" id="userInput" placeholder="Mensagem...">
+        <button style="background:none; border:none; color:var(--accent); font-weight:bold; margin-left:10px;" onclick="sendMessage()">ENVIAR</button>
     </div>
 </div>
 
-<div id="config-modal">
-    <h2 style="color:var(--accent); margin-top:0;">Iniciar Call :3</h2>
-    <div class="option-group">
-        <label>Personalidade:</label>
-        <select id="call-personality">
-            <option value="Alegre">Flayky Alegre (Oueiieieie!)</option>
-            <option value="Seria">Flayky Fusion (GPT Mode)</option>
-            <option value="Assustadora">Flayky Terror (Pizzeria Mode)</option>
-        </select>
+<div id="call-overlay">
+    <h2 id="call-title">Escolha a Personalidade</h2>
+    <div class="personality-grid" id="menu-p">
+        <div class="p-card" onclick="startCall('Friendly', 'https://i.imgur.com/8Km9tS9.png')">
+            <img src="https://i.imgur.com/8Km9tS9.png" alt="Friendly">
+            <div>Amigável :3</div>
+        </div>
+        <div class="p-card" onclick="startCall('Gamer', 'https://i.imgur.com/w2nZXvP.png')">
+            <img src="https://i.imgur.com/w2nZXvP.png" alt="Gamer">
+            <div>Gamer/Godot</div>
+        </div>
+        <div class="p-card" onclick="startCall('Horror', 'https://i.imgur.com/6o8mB9X.png')">
+            <img src="https://i.imgur.com/6o8mB9X.png" alt="Horror">
+            <div>Sombria</div>
+        </div>
+        <div class="p-card" onclick="startCall('Hybrid', 'https://i.imgur.com/bX78shm.png')">
+            <img src="https://i.imgur.com/bX78shm.png" alt="Hybrid">
+            <div>IA Fusão</div>
+        </div>
     </div>
-    <div class="option-group">
-        <label>URL da Foto (Avatar):</label>
-        <input type="text" id="call-photo" placeholder="Cole o link de uma imagem...">
-    </div>
-    <button class="btn-call-start" onclick="startCall()">INICIAR CHAMADA</button>
-    <button onclick="closeModal()" style="background:none; border:none; color:red; width:100%; margin-top:10px; cursor:pointer;">Cancelar</button>
-</div>
 
-<div id="call-screen">
-    <img id="avatar-call" src="" class="pulsing">
-    <h2 id="call-status" style="color:var(--accent);">Conectando...</h2>
-    <p id="call-sub">Personalidade: <span id="active-p"></span></p>
-    <div id="call-text" style="height: 50px; font-style: italic; color: #ccc;"></div>
-    <button onclick="endCall()" style="background:red; color:white; border:none; padding:15px 40px; border-radius:50px; margin-top:30px; cursor:pointer; font-weight:bold;">ENCERRAR</button>
+    <div id="active-call">
+        <img id="call-avatar" class="avatar-call" src="">
+        <h2 id="call-name">Flayky</h2>
+        <div class="call-status">Conectando...</div>
+        <button class="end-call" onclick="endCall()">✖</button>
+    </div>
 </div>
 
 <script>
-    const modal = document.getElementById('config-modal');
-    const callScreen = document.getElementById('call-screen');
-    const chatApp = document.getElementById('chat-app');
+    const chatDisplay = document.getElementById('messages');
+    const userInput = document.getElementById('userInput');
 
-    function openCallConfig() { modal.style.display = 'block'; }
-    function closeModal() { modal.style.display = 'none'; }
-
-    function startCall() {
-        const personality = document.getElementById('call-personality').value;
-        const photo = document.getElementById('call-photo').value || 'https://via.placeholder.com/200/00ff41/000000?text=Flayky';
-        
-        modal.style.display = 'none';
-        chatApp.style.filter = 'blur(10px)';
-        callScreen.style.display = 'flex';
-        
-        document.getElementById('avatar-call').src = photo;
-        document.getElementById('active-p').innerText = personality;
-        
-        setTimeout(() => {
-            document.getElementById('call-status').innerText = "Em chamada com Flayky";
-            simulateVoice(personality);
-        }, 1500);
+    // Funções de Chamada
+    function openCallMenu() {
+        document.getElementById('call-overlay').style.display = 'flex';
+        document.getElementById('menu-p').style.display = 'grid';
+        document.getElementById('active-call').style.display = 'none';
+        document.getElementById('call-title').innerText = "Iniciar Chamada";
     }
 
-    function simulateVoice(p) {
-        const dialogs = {
-            'Alegre': "Oueiieieie! Que bom falar com você por voz! Como está seu dia? :3",
-            'Seria': "Protocolo de voz estabelecido. Aguardando comandos para otimização de sistemas.",
-            'Assustadora': "Eu consigo ver você... mas você não consegue me ver na pizzaria... >:3"
-        };
-        document.getElementById('call-text').innerText = dialogs[p];
+    function startCall(name, img) {
+        document.getElementById('menu-p').style.display = 'none';
+        document.getElementById('call-title').innerText = "Chamada de Voz";
+        document.getElementById('active-call').style.display = 'flex';
+        document.getElementById('call-avatar').src = img;
+        document.getElementById('call-name').innerText = "Flayky (" + name + ")";
+        
+        setTimeout(() => {
+            document.querySelector('.call-status').innerText = "00:01 • Em call com você";
+        }, 2000);
     }
 
     function endCall() {
-        callScreen.style.display = 'none';
-        chatApp.style.filter = 'none';
-        document.getElementById('call-status').innerText = "Conectando...";
-        document.getElementById('call-text').innerText = "";
+        document.getElementById('call-overlay').style.display = 'none';
     }
 
-    // Mantive a lógica do chat anterior para funcionar em conjunto
+    // Lógica de Mensagens Otimizada
     function sendMessage() {
-        const input = document.getElementById('userInput');
-        const text = input.value.trim();
+        const text = userInput.value.trim();
         if(!text) return;
-        
-        const msgDiv = document.createElement('div');
-        msgDiv.style.cssText = "align-self: flex-end; background:#222; padding:10px; border-radius:10px; margin-bottom:10px;";
-        msgDiv.innerText = text;
-        document.getElementById('messages').appendChild(msgDiv);
-        input.value = '';
+
+        addMessage('user', text);
+        userInput.value = '';
+
+        setTimeout(() => {
+            const response = processAI(text);
+            addMessage('bot', response);
+        }, 700);
     }
+
+    function addMessage(sender, text) {
+        const div = document.createElement('div');
+        div.classList.add('msg', sender);
+        div.innerText = text;
+        chatDisplay.appendChild(div);
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    }
+
+    function processAI(t) {
+        t = t.toLowerCase();
+        if(t.includes('oi')) return "Oueieie! Sistema mobile ativo. Como posso ajudar? :3";
+        if(t.includes('horror') || t.includes('fnaf')) return "Cuidado... no escuro, os animatrônicos são mais rápidos. Quer revisar o código do susto?";
+        if(t.includes('godot')) return "A versão 4.6 está excelente para mobile. Já configurou os touch controls?";
+        return "Processando... Meus núcleos híbridos estão analisando sua mensagem! >:3";
+    }
+
+    userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
 </script>
 
 </body>
-</html>
+    </html>
+    
