@@ -3,161 +3,165 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flash Editor Studio</title>
+  <title>Flash Editor Ultra Pro</title>
   <style>
-    :root { --p: #ff0055; --s: #00f2ff; --bg: #0d0d0f; }
-    body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; overflow-x: hidden; }
+    :root { --p: #ff0055; --s: #00f2ff; --bg: #050505; --c: rgba(255,255,255,0.07); }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; overflow-x: hidden; }
     
-    /* TELA 1: Preview (Fixa) */
-    .preview-screen {
-      position: sticky; top: 0; background: #000; padding: 10px; z-index: 1000;
-      border-bottom: 2px solid var(--p); box-shadow: 0 5px 20px rgba(0,0,0,0.8);
-    }
-    .video-wrapper { position: relative; max-width: 500px; margin: 0 auto; line-height: 0; }
-    #v { width: 100%; border-radius: 8px; }
-    #subtitle-overlay {
-      position: absolute; bottom: 15%; left: 0; width: 100%; text-align: center;
-      font-weight: bold; color: yellow; text-shadow: 2px 2px 4px black; pointer-events: none; font-size: 1.2rem;
-    }
+    /* Sistema de Abas */
+    .tabs { display: flex; position: sticky; top: 0; z-index: 1000; background: #000; padding: 10px; gap: 10px; border-bottom: 1px solid #222; }
+    .tab { flex: 1; padding: 12px; border-radius: 10px; border: none; background: #111; color: #666; font-weight: bold; }
+    .tab.active { background: var(--p); color: white; box-shadow: 0 0 15px rgba(255,0,85,0.4); }
 
-    /* TELA 2: Edição (Scroll) */
-    .editor-screen { padding: 20px; max-width: 600px; margin: 0 auto; }
-    .card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #333; }
+    .page { display: none; padding: 20px; box-sizing: border-box; }
+    .page.active { display: block; }
+
+    /* Tela de Preview */
+    .preview-container { position: relative; width: 100%; max-width: 500px; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 2px solid var(--s); line-height: 0; }
+    video, canvas { width: 100%; display: block; transition: transform 0.3s; }
+    #subtitle-overlay { position: absolute; bottom: 10%; width: 100%; text-align: center; font-size: 1.5rem; font-weight: bold; color: white; text-shadow: 2px 2px 4px #000; pointer-events: none; }
+
+    /* Controles de Edição */
+    .card { background: var(--c); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    button { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; background: #222; color: white; transition: 0.2s; }
-    button:active { transform: scale(0.95); }
-    .btn-save { background: var(--p); grid-column: span 2; font-size: 16px; margin-top: 10px; }
+    button { padding: 10px; border-radius: 8px; border: none; background: #222; color: white; font-size: 12px; cursor: pointer; transition: 0.2s; }
+    button:active { transform: scale(0.9); }
+    .btn-save { background: #00c853; width: 100%; font-size: 16px; margin-top: 10px; padding: 15px; font-weight: bold; }
     
     input[type="range"] { width: 100%; accent-color: var(--p); }
-    input[type="text"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--s); background: #111; color: white; box-sizing: border-box; }
-    
-    label { font-size: 12px; color: var(--s); display: block; margin-bottom: 5px; }
-    h3 { font-size: 14px; border-left: 3px solid var(--p); padding-left: 10px; margin: 20px 0 10px; }
+    label { font-size: 11px; color: #aaa; display: block; margin-bottom: 4px; }
+    input[type="text"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #111; color: white; box-sizing: border-box; }
   </style>
 </head>
 <body>
 
-<div class="preview-screen">
-  <div class="video-wrapper">
-    <video id="v" crossorigin="anonymous"></video>
+<div class="tabs">
+  <button class="tab active" onclick="openPage('preview', this)">📺 Preview</button>
+  <button class="tab" onclick="openPage('edit', this)">⚙️ Editar</button>
+</div>
+
+<div id="preview" class="page active">
+  <div class="preview-container" id="box">
+    <video id="video" crossorigin="anonymous"></video>
     <div id="subtitle-overlay"></div>
   </div>
-  <div style="text-align: center; margin-top: 10px;">
-    <progress id="exportProgress" value="0" max="100" style="width: 100%; display:none;"></progress>
-    <small id="statusText" style="color:var(--s)"></small>
+  
+  <div class="card" style="margin-top: 20px;">
+    <div class="grid">
+      <button onclick="video.play()">▶ Play</button>
+      <button onclick="video.pause()">⏸ Pause</button>
+    </div>
+    <button class="btn-save" onclick="exportVideo()">⬇️ BAIXAR VÍDEO EDITADO</button>
+    <p id="status" style="text-align:center; font-size: 12px; color: var(--s);"></p>
   </div>
 </div>
 
-<div class="editor-screen">
-  <button class="btn-save" onclick="exportVideo()">💾 BAIXAR VÍDEO EDITADO</button>
-
-  <h3>Arquivos</h3>
-  <div class="card grid">
-    <button onclick="document.getElementById('vIn').click()">🎥 Vídeo</button>
-    <button onclick="document.getElementById('aIn').click()">🎵 Áudio</button>
-    <input type="file" id="vIn" accept="video/*" hidden onchange="loadVid(this)">
-    <input type="file" id="aIn" accept="audio/*" hidden onchange="addAud(this)">
-  </div>
-
-  <h3>Legendas Dynamicas</h3>
+<div id="edit" class="page">
   <div class="card">
-    <label>Texto da Legenda</label>
-    <input type="text" id="subText" placeholder="Digite aqui..." oninput="updateSub()">
+    <button style="width:100%" onclick="document.getElementById('vIn').click()">🎥 Carregar Vídeo</button>
+    <input type="file" id="vIn" hidden accept="video/*" onchange="loadVid(this)">
   </div>
 
-  <h3>Filtros e Efeitos</h3>
+  <h3>🔤 Legendas</h3>
+  <div class="card">
+    <input type="text" id="subIn" placeholder="Digite sua legenda aqui..." oninput="updateSub()">
+    <div class="grid" style="margin-top:10px">
+      <div><label>Cor</label><input type="color" id="subCol" value="#ffffff" oninput="updateSub()"></div>
+      <div><label>Tamanho</label><input type="range" id="subSize" min="14" max="50" value="24" oninput="updateSub()"></div>
+    </div>
+  </div>
+
+  <h3>🎨 20 Opções de Ajuste</h3>
   <div class="card">
     <div class="grid">
-      <button onclick="rotateVid()">🔄 Girar</button>
-      <button onclick="flipVid()">↔️ Mirror</button>
+      <div><label>Brilho</label><input type="range" id="br" min="0" max="200" value="100" oninput="apply()"></div>
+      <div><label>Contraste</label><input type="range" id="ct" min="0" max="200" value="100" oninput="apply()"></div>
+      <div><label>Saturação</label><input type="range" id="st" min="0" max="200" value="100" oninput="apply()"></div>
+      <div><label>Matiz (Hue)</label><input type="range" id="hu" min="0" max="360" value="0" oninput="apply()"></div>
+      <div><label>Desfoque</label><input type="range" id="bl" min="0" max="10" value="0" oninput="apply()"></div>
+      <div><label>Opacidade</label><input type="range" id="op" min="0" max="100" value="100" oninput="apply()"></div>
+      <div><label>Cinza</label><input type="range" id="gr" min="0" max="100" value="0" oninput="apply()"></div>
+      <div><label>Sépia</label><input type="range" id="se" min="0" max="100" value="0" oninput="apply()"></div>
     </div>
-    <br>
-    <label>Brilho</label>
-    <input type="range" id="br" min="0" max="200" value="100" oninput="apply()">
-    <label>Zoom</label>
-    <input type="range" id="zm" min="1" max="2" step="0.1" value="1" oninput="apply()">
   </div>
 
-  <h3>Mixagem de Som</h3>
-  <div class="card">
-    <label>Volume do Vídeo</label>
-    <input type="range" id="vv" min="0" max="1" step="0.1" value="1" oninput="apply()">
-    <div id="tracks"></div>
+  <h3>📐 Transformação e Efeitos</h3>
+  <div class="card grid-3">
+    <button onclick="changeZoom(0.1)">➕ Zoom</button>
+    <button onclick="changeZoom(-0.1)">➖ Zoom</button>
+    <button onclick="rotate(90)">🔄 Girar</button>
+    <button onclick="flip()">↔️ Inverter</button>
+    <button onclick="setEffect('none')">🚫 Limpar</button>
+    <button onclick="setEffect('invert(100%)')">🌈 Inverter</button>
+    <button onclick="setEffect('blur(5px) grayscale(1)')">🌫 Fantasma</button>
+    <button onclick="setEffect('sepia(1) hue-rotate(180deg)')">🕰 Vintage</button>
+    <button onclick="setEffect('brightness(2) contrast(1.5)')">🔥 HDR</button>
   </div>
 </div>
 
-<canvas id="exportCanvas" style="display:none;"></canvas>
-
 <script>
-  const v = document.getElementById('v');
+  const video = document.getElementById('video');
   const subOverlay = document.getElementById('subtitle-overlay');
-  let rotation = 0, flip = 1;
+  let zoom = 1, rot = 0, flipX = 1;
+  let customEffect = "";
 
-  function apply() {
-    const br = document.getElementById('br').value;
-    const zm = document.getElementById('zm').value;
-    v.style.filter = `brightness(${br}%)`;
-    v.style.transform = `rotate(${rotation}deg) scale(${flip * zm}, ${zm})`;
-    v.volume = document.getElementById('vv').value;
-    saveState();
+  function openPage(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
   }
 
   function loadVid(input) {
     if (input.files[0]) {
-      v.src = URL.createObjectURL(input.files[0]);
-      v.play();
-      apply();
+      video.src = URL.createObjectURL(input.files[0]);
+      video.play();
+      openPage('preview', document.querySelector('.tab'));
     }
   }
 
+  function apply() {
+    const filters = [
+      `brightness(${document.getElementById('br').value}%)`,
+      `contrast(${document.getElementById('ct').value}%)`,
+      `saturate(${document.getElementById('st').value}%)`,
+      `hue-rotate(${document.getElementById('hu').value}deg)`,
+      `blur(${document.getElementById('bl').value}px)`,
+      `opacity(${document.getElementById('op').value}%)`,
+      `grayscale(${document.getElementById('gr').value}%)`,
+      `sepia(${document.getElementById('se').value}%)`,
+      customEffect
+    ].join(' ');
+
+    video.style.filter = filters;
+    video.style.transform = `rotate(${rot}deg) scale(${flipX * zoom}, ${zoom})`;
+  }
+
+  function changeZoom(v) { zoom += v; apply(); }
+  function rotate(v) { rot += v; apply(); }
+  function flip() { flipX *= -1; apply(); }
+  function setEffect(eff) { customEffect = eff === 'none' ? "" : eff; apply(); }
+
   function updateSub() {
-    subOverlay.innerText = document.getElementById('subText').value;
-    saveState();
+    subOverlay.innerText = document.getElementById('subIn').value;
+    subOverlay.style.color = document.getElementById('subCol').value;
+    subOverlay.style.fontSize = document.getElementById('subSize').value + 'px';
   }
-
-  function rotateVid() { rotation = (rotation + 90) % 360; apply(); }
-  function flipVid() { flip *= -1; apply(); }
-
-  function addAud(input) {
-    const file = input.files[0];
-    const url = URL.createObjectURL(file);
-    const id = 'aud' + Date.now();
-    const div = document.createElement('div');
-    div.innerHTML = `<label>🎵 ${file.name.substring(0,10)}</label>
-      <audio id="${id}" src="${url}"></audio>
-      <input type="range" min="0" max="1" step="0.1" oninput="document.getElementById('${id}').volume=this.value">`;
-    document.getElementById('tracks').appendChild(div);
-  }
-
-  // Sincronização
-  v.onplay = () => document.querySelectorAll('audio').forEach(a => a.play());
-  v.onpause = () => document.querySelectorAll('audio').forEach(a => a.pause());
-  v.onseeking = () => document.querySelectorAll('audio').forEach(a => a.currentTime = v.currentTime);
 
   // FUNÇÃO MÁGICA: EXPORTAR VÍDEO
   async function exportVideo() {
-    const canvas = document.getElementById('exportCanvas');
+    const status = document.getElementById('status');
+    status.innerText = "⏳ Processando... Mantenha a aba aberta.";
+    
+    const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    const status = document.getElementById('statusText');
-    
-    canvas.width = v.videoWidth;
-    canvas.height = v.videoHeight;
-    
-    const stream = canvas.captureStream(30);
-    // Adiciona o áudio do vídeo original ao stream de exportação
-    const audioContext = new AudioContext();
-    const dest = audioContext.createMediaStreamDestination();
-    const source = audioContext.createMediaElementSource(v);
-    source.connect(dest);
-    source.connect(audioContext.destination);
-    
-    const combinedStream = new MediaStream([
-      ...stream.getVideoTracks(),
-      ...dest.stream.getAudioTracks()
-    ]);
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
-    const recorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
+    const stream = canvas.captureStream(30);
+    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
     const chunks = [];
 
     recorder.ondataavailable = e => chunks.push(e.data);
@@ -166,60 +170,43 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'video_editado.webm';
+      a.download = 'video_editado_flash.webm';
       a.click();
-      status.innerText = "✅ Download Concluído!";
+      status.innerText = "✅ Download concluído!";
     };
 
-    v.currentTime = 0;
-    v.play();
+    video.currentTime = 0;
+    video.play();
     recorder.start();
-    status.innerText = "🚀 Renderizando... aguarde o vídeo acabar.";
 
     const drawFrame = () => {
-      if (v.paused || v.ended) {
+      if (video.paused || video.ended) {
         recorder.stop();
         return;
       }
-      
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
       
-      // Aplica as edições no Canvas (Filtros e Transformação)
+      // Aplicar transformações no canvas
       ctx.translate(canvas.width/2, canvas.height/2);
-      ctx.rotate(rotation * Math.PI / 180);
-      ctx.scale(flip * document.getElementById('zm').value, document.getElementById('zm').value);
-      ctx.filter = `brightness(${document.getElementById('br').value}%)`;
-      ctx.drawImage(v, -canvas.width/2, -canvas.height/2, canvas.width, canvas.height);
+      ctx.rotate(rot * Math.PI / 180);
+      ctx.scale(flipX * zoom, zoom);
+      ctx.filter = video.style.filter;
+      ctx.drawImage(video, -canvas.width/2, -canvas.height/2, canvas.width, canvas.height);
+      
+      // Desenhar Legenda no canvas
       ctx.restore();
-
-      // Desenha Legenda
-      ctx.fillStyle = "yellow";
-      ctx.font = "bold 40px Arial";
+      ctx.fillStyle = subOverlay.style.color;
+      ctx.font = `${document.getElementById('subSize').value * (canvas.width/500)}px sans-serif`;
       ctx.textAlign = "center";
-      ctx.shadowColor = "black";
-      ctx.shadowBlur = 7;
-      ctx.fillText(document.getElementById('subText').value, canvas.width/2, canvas.height * 0.85);
+      ctx.fillText(subOverlay.innerText, canvas.width/2, canvas.height * 0.9);
       
       requestAnimationFrame(drawFrame);
     };
 
     drawFrame();
+    video.onended = () => recorder.stop();
   }
-
-  function saveState() {
-    const state = { br: document.getElementById('br').value, sub: document.getElementById('subText').value, time: v.currentTime };
-    localStorage.setItem('flashEditorStore', JSON.stringify(state));
-  }
-
-  window.onload = () => {
-    const s = JSON.parse(localStorage.getItem('flashEditorStore'));
-    if(s) {
-      document.getElementById('subText').value = s.sub || "";
-      updateSub();
-    }
-  };
 </script>
 </body>
-      </html>
-                       
+</html>
