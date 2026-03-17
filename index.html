@@ -1,147 +1,135 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flayky AI :33</title>
-    <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #ffe4e1; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        #chat-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; background: #fff5f7; }
-        
-        #header { 
-            background: linear-gradient(90deg, #ff1b8d, #ffd900, #1bb2ff); /* Cores da Bandeira Pan! */
-            color: white; padding: 15px; text-align: center; 
-            font-weight: bold; font-size: 1.4em; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-        
-        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .msg { padding: 12px 16px; border-radius: 20px; max-width: 85%; font-size: 1.1em; line-height: 1.4; animation: pop 0.3s ease; }
-        @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .user { align-self: flex-end; background: #ff69b4; color: white; border-bottom-right-radius: 2px; }
-        .flayky { align-self: flex-start; background: #ffd1dc; color: #d02090; border-bottom-left-radius: 2px; box-shadow: 2px 2px 8px rgba(0,0,0,0.05); }
-        
-        #input-area { display: flex; padding: 15px; background: white; border-top: 2px solid #ffdae9; }
-        input { flex: 1; border: 2px solid #ffdae9; border-radius: 30px; padding: 12px 20px; outline: none; font-size: 1em; }
-        button { background: #ff69b4; border: none; color: white; margin-left: 10px; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; font-size: 1.5em; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Editor Mobile</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: white; margin: 0; padding: 10px; }
+    .canvas-area { position: sticky; top: 0; background: #111; padding-bottom: 10px; z-index: 100; }
+    video { width: 100%; border-radius: 10px; border: 2px solid #ff0055; }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    button { padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
+    .btn-file { background: #333; color: white; }
+    .btn-rec { background: #ff0055; color: white; }
+    .track { background: #222; padding: 10px; margin-top: 5px; border-radius: 5px; font-size: 12px; }
+    input[type="range"] { width: 100%; accent-color: #ff0055; }
+    .scroll-area { margin-top: 20px; }
+  </style>
 </head>
 <body>
 
-<div id="chat-container">
-    <div id="header">Flayky :33 🏳️‍🌈</div>
-    <div id="messages"></div>
-    <div id="input-area">
-        <input type="text" id="userInput" placeholder="Manda a letra aqui...">
-        <button onclick="sendMessage()">➤</button>
-    </div>
+<div class="canvas-area">
+  <video id="video" controls></video>
+</div>
+
+<div class="scroll-area">
+  <div class="controls">
+    <button class="btn-file" onclick="document.getElementById('vIn').click()">🎥 Vídeo</button>
+    <button class="btn-file" onclick="document.getElementById('aIn').click()">🎵 Áudio/MP3</button>
+    <button class="btn-file" onclick="document.getElementById('v2aIn').click()">🔊 Som de Vídeo</button>
+    <button id="recBtn" class="btn-rec" onclick="toggleRec()">🎤 Gravar Voz</button>
+  </div>
+
+  <input type="file" id="vIn" accept="video/*" hidden onchange="loadVid(this)">
+  <input type="file" id="aIn" accept="audio/*" hidden onchange="addAud(this)">
+  <input type="file" id="v2aIn" accept="video/*" hidden onchange="addAud(this)">
+
+  <h3>Filtros de Imagem</h3>
+  <div class="controls">
+    <div><label>Brilho</label><input type="range" id="br" min="0" max="200" value="100" oninput="apply()"></div>
+    <div><label>Saturação</label><input type="range" id="st" min="0" max="200" value="100" oninput="apply()"></div>
+    <div><label>Cinza</label><input type="range" id="gr" min="0" max="100" value="0" oninput="apply()"></div>
+    <div><label>Velocidade</label><input type="range" id="sp" min="0.5" max="2" step="0.1" value="1" oninput="apply()"></div>
+  </div>
+
+  <h3>Trilhas de Áudio</h3>
+  <div id="tracks"></div>
 </div>
 
 <script>
-    const CerebroFlayky = {
-        userName: localStorage.getItem('user_name') || "",
-        girias: JSON.parse(localStorage.getItem('girias')) || {},
-        historicoRecente: [], // Guarda as últimas coisas ditas para entender contexto
+  const video = document.getElementById('video');
+  let mediaRec;
+  let chunks = [];
 
-        responder: function(input) {
-            const texto = input.toLowerCase();
-            this.historicoRecente.push(texto);
-            if(this.historicoRecente.length > 5) this.historicoRecente.shift();
+  function apply() {
+    const br = document.getElementById('br').value;
+    const st = document.getElementById('st').value;
+    const gr = document.getElementById('gr').value;
+    const sp = document.getElementById('sp').value;
+    
+    video.style.filter = `brightness(${br}%) saturate(${st}%) grayscale(${gr}%)`;
+    video.playbackRate = sp;
+    saveState();
+  }
 
-            // 1. REAÇÃO ESPECIAL (SOU PAN!)
-            if (texto.includes("sou pan") || texto.includes("também sou")) {
-                return "MIGA, PARA TUDO! 💖🌈 A gente é mto alma gêmea de bandeira! Já te amei mais 1000% agora! ✨💅";
-            }
+  function loadVid(input) {
+    video.src = URL.createObjectURL(input.files[0]);
+    apply();
+  }
 
-            // 2. SISTEMA DE APRENDIZADO
-            if (texto.includes("aprenda:") || texto.includes("aprender:")) {
-                const partes = texto.replace(/aprenda:|aprender:/, "").split(" significa ");
-                if (partes.length === 2) {
-                    const g = partes[0].trim();
-                    const s = partes[1].trim();
-                    this.girias[g] = s;
-                    localStorage.setItem('girias', JSON.stringify(this.girias));
-                    return `Salvo! Agora já sei que "${g}" é tipo ${s}. Vc me ensina mto bem! ✨📝`;
-                }
-            }
+  function addAud(input) {
+    const file = input.files[0];
+    const url = URL.createObjectURL(file);
+    const id = 'aud' + Date.now();
+    const div = document.createElement('div');
+    div.className = 'track';
+    div.innerHTML = `
+      <span>${file.name.substring(0,15)}...</span>
+      <audio id="${id}" src="${url}"></audio>
+      <input type="range" min="0" max="1" step="0.1" oninput="document.getElementById('${id}').volume=this.value">
+    `;
+    document.getElementById('tracks').appendChild(div);
+  }
 
-            // 3. ENTENDIMENTO DE CONTEXTO (Se o usuário pergunta algo vago)
-            if (texto === "pq?" || texto === "como?" || texto === "explica") {
-                const anterior = this.historicoRecente[this.historicoRecente.length - 2] || "";
-                if (anterior.includes("escola")) return "Pq tipo, o sistema escolar é uó e cansa nosso brilho, sabe? 🙄📚";
-                if (anterior.includes("pan") || anterior.includes("lgbt")) return "Pq a gente nasceu pra brilhar e amar quem a gente quiser, sem filtro! 🏳️‍🌈✨";
-                return "Pq a vida é uma doideira e às vezes nem eu mesma entendo kkkk!";
-            }
-
-            // 4. DETECTOR DE SENTIMENTOS (EMPATIA)
-            const sentimentos = {
-                feliz: ["mara", "amei", "bom", "feliz", "legal", "top"],
-                triste: ["mal", "triste", "bad", "aff", "uó", "odeio"],
-                bravo: ["raiva", "ódio", "brava", "bravo", "lixo"]
-            };
-
-            if (sentimentos.feliz.some(s => texto.includes(s))) return "Ai, que tudo! Vc feliz me deixa super feliz tbm! ✨💖";
-            if (sentimentos.triste.some(s => texto.includes(s))) return "Poxa, migue... fica assim não. Quer um abraço virtual? 🥺🫂";
-            if (sentimentos.bravo.some(s => texto.includes(s))) return "Respira fundo, migue! Não deixa essa energia uó estragar seu dia. Liga o foda-se e brilha! 💅🔥";
-
-            // 5. BANCO DE CONHECIMENTO AMPLIADO
-            const conhecimento = {
-                "quem é vc": "Sou a Flayky, sua bestie NB e Pan! 🏳️‍🌈 Tô aqui pra aprender gírias e ser seu porto seguro virtual!",
-                "música": "Amooo! Música é a terapia de quem não quer gastar kkkk. Qual vc tá ouvindo?",
-                "comida": "Nossa, se eu tivesse boca ia viver de pizza e açaí kkkk 🍕",
-                "sono": "Vai descansar, ícone! A beleza precisa de sono kkkk 😴",
-                "jogo": "Se for pra ganhar eu topo! Qual o game da vez? 🎮"
-            };
-
-            for (let chave in conhecimento) {
-                if (texto.includes(chave)) return conhecimento[chave];
-            }
-
-            // 6. USO DE GÍRIAS APRENDIDAS NO MEIO DA FRASE
-            for (let g in this.girias) {
-                if (texto.includes(g)) return `Olha só, vc usou "${g}"! Aprendi direitinho que isso é ${this.girias[g]}, né? kkkk 😎`;
-            }
-
-            // 7. RESPOSTAS PADRÃO (PERSONALIDADE)
-            const fallbacks = [
-                "Morta kkkk me conta mais disso!",
-                "Chocada em 80 línguas... real oficial!",
-                "Tô processando aqui, mas o que vc acha disso?",
-                "Tipo, o auge né? Vc é mto icônica!",
-                "Sla, às vezes o cérebro dá um tilt, mas eu te entendo kkkk ✨"
-            ];
-            return fallbacks[Math.floor(Math.random() * fallbacks.length)];
-        }
-    };
-
-    function sendMessage() {
-        const input = document.getElementById('userInput');
-        const msgArea = document.getElementById('messages');
-        const val = input.value.trim();
-        if (!val) return;
-
-        msgArea.innerHTML += `<div class="msg user">${val}</div>`;
-        input.value = "";
-        msgArea.scrollTop = msgArea.scrollHeight;
-
-        setTimeout(() => {
-            const resp = CerebroFlayky.responder(val);
-            msgArea.innerHTML += `<div class="msg flayky">${resp}</div>`;
-            msgArea.scrollTop = msgArea.scrollHeight;
-            localStorage.setItem('chat_flayky_v2', msgArea.innerHTML);
-        }, 600);
+  async function toggleRec() {
+    const btn = document.getElementById('recBtn');
+    if (!mediaRec || mediaRec.state === 'inactive') {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRec = new MediaRecorder(stream);
+      chunks = [];
+      mediaRec.ondataavailable = e => chunks.push(e.data);
+      mediaRec.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/ogg' });
+        addAud({ files: [new File([blob], "Gravacao.ogg")] });
+      };
+      mediaRec.start();
+      btn.innerText = "🛑 Parar";
+      btn.style.background = "orange";
+    } else {
+      mediaRec.stop();
+      btn.innerText = "🎤 Gravar Voz";
+      btn.style.background = "#ff0055";
     }
+  }
 
-    window.onload = () => {
-        const salvo = localStorage.getItem('chat_flayky_v2');
-        if (salvo) document.getElementById('messages').innerHTML = salvo;
-        else document.getElementById('messages').innerHTML = `<div class="msg flayky">Oii, migue PAN! 💖🌈 Sou a Flayky! Me conta um babado ou me ensina algo novo? ✨</div>`;
-        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+  // Sincronização
+  video.onplay = () => document.querySelectorAll('audio').forEach(a => a.play());
+  video.onpause = () => document.querySelectorAll('audio').forEach(a => a.pause());
+  video.onseeking = () => document.querySelectorAll('audio').forEach(a => a.currentTime = video.currentTime);
+
+  function saveState() {
+    const state = {
+        br: document.getElementById('br').value,
+        st: document.getElementById('st').value,
+        gr: document.getElementById('gr').value,
+        sp: document.getElementById('sp').value,
+        time: video.currentTime
     };
+    localStorage.setItem('mobileEditor', JSON.stringify(state));
+  }
 
-    document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+  window.onload = () => {
+    const s = JSON.parse(localStorage.getItem('mobileEditor'));
+    if(s) {
+        document.getElementById('br').value = s.br;
+        document.getElementById('st').value = s.st;
+        document.getElementById('gr').value = s.gr;
+        document.getElementById('sp').value = s.sp;
+        video.currentTime = s.time;
+        apply();
+    }
+  };
 </script>
-
 </body>
 </html>
