@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flash Editor Pro</title>
+  <title>Flash Editor Ultra</title>
   <style>
     :root {
       --primary: #ff0055;
@@ -13,59 +13,45 @@
     }
 
     body { 
-      font-family: 'Segoe UI', Roboto, sans-serif; 
+      font-family: 'Segoe UI', sans-serif; 
       background: var(--bg); 
       color: white; 
       margin: 0; 
-      padding: 0; 
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-
-    /* Header e Video Sticky */
-    .header {
-      width: 100%;
-      padding: 15px;
-      text-align: center;
-      background: linear-gradient(to bottom, #111, transparent);
     }
 
     .canvas-area { 
       position: sticky; 
       top: 0; 
       background: var(--bg); 
-      padding: 10px; 
+      padding: 15px; 
       z-index: 100; 
       width: 100%;
       box-sizing: border-box;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    .video-container {
+      overflow: hidden;
+      border-radius: 15px;
+      border: 2px solid var(--primary);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 0;
     }
 
     video { 
       width: 100%; 
-      max-width: 600px;
-      border-radius: 15px; 
-      border: 2px solid var(--primary);
-      box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
-      display: block;
-      margin: 0 auto;
+      transition: transform 0.3s ease;
     }
 
-    /* Área de Conteúdo */
     .scroll-area { 
       padding: 20px; 
       width: 100%;
       max-width: 600px;
       box-sizing: border-box;
-    }
-
-    h3 { 
-      font-size: 14px; 
-      text-transform: uppercase; 
-      letter-spacing: 1px; 
-      color: var(--secondary);
-      margin-top: 25px;
     }
 
     .card {
@@ -74,91 +60,104 @@
       padding: 15px;
       border-radius: 15px;
       border: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
-    /* Controles */
-    .controls { 
+    .controls-grid { 
       display: grid; 
-      grid-template-columns: 1fr 1fr; 
-      gap: 12px; 
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 10px; 
     }
 
     button { 
-      padding: 14px; 
+      padding: 12px; 
       border: none; 
-      border-radius: 12px; 
+      border-radius: 10px; 
       font-weight: bold; 
-      font-size: 13px; 
       cursor: pointer; 
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      background: #222; 
+      color: white;
+      font-size: 13px;
     }
 
     button:active { transform: scale(0.95); }
+    .btn-main { background: var(--primary); }
+    .btn-alt { background: #333; border: 1px solid var(--secondary); }
 
-    .btn-file { background: #222; color: white; border: 1px solid #444; }
-    .btn-rec { background: var(--primary); color: white; grid-column: span 2; }
-
-    /* Sliders Estilizados */
-    .slider-group { margin-bottom: 15px; }
-    .slider-group label { display: block; font-size: 12px; margin-bottom: 5px; opacity: 0.8; }
+    .slider-group { margin-bottom: 12px; }
+    .slider-group label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; color: #aaa; }
     
     input[type="range"] { 
       width: 100%; 
-      height: 6px;
-      background: #333;
-      border-radius: 5px;
-      outline: none;
-      -webkit-appearance: none;
       accent-color: var(--primary);
     }
 
-    /* Trilhas */
-    .track { 
-      background: rgba(255,255,255,0.08); 
-      padding: 12px; 
-      margin-top: 8px; 
-      border-radius: 10px; 
-      font-size: 12px; 
+    .filter-chips {
       display: flex;
-      flex-direction: column;
       gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 10px;
     }
 
-    .track span { color: var(--secondary); font-weight: bold; }
+    .chip {
+      padding: 6px 15px;
+      background: #333;
+      border-radius: 20px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
 
+    .track { 
+      background: rgba(0, 242, 255, 0.05); 
+      padding: 10px; 
+      margin-top: 8px; 
+      border-radius: 10px; 
+      border-left: 3px solid var(--secondary);
+    }
   </style>
 </head>
 <body>
 
-<div class="header">
-  <h2 style="margin:0; font-size: 1.2rem;">✨ Flash Editor Pro</h2>
-</div>
-
 <div class="canvas-area">
-  <video id="video" controls></video>
+  <div class="video-container">
+    <video id="video" controls></video>
+  </div>
 </div>
 
 <div class="scroll-area">
   <div class="card">
-    <div class="controls">
-      <button class="btn-file" onclick="document.getElementById('vIn').click()">🎥 Vídeo</button>
-      <button class="btn-file" onclick="document.getElementById('aIn').click()">🎵 Áudio</button>
-      <button class="btn-file" onclick="document.getElementById('v2aIn').click()">🔊 Extrair</button>
-      <button id="recBtn" class="btn-rec" onclick="toggleRec()">🎤 Gravar Voz</button>
+    <div class="controls-grid">
+      <button onclick="document.getElementById('vIn').click()">🎥 Add Vídeo</button>
+      <button onclick="document.getElementById('aIn').click()">🎵 Add Áudio</button>
+      <button id="recBtn" class="btn-main" onclick="toggleRec()">🎤 Gravar Voz</button>
+      <button class="btn-alt" onclick="resetAll()">🔄 Resetar Tudo</button>
     </div>
   </div>
 
   <input type="file" id="vIn" accept="video/*" hidden onchange="loadVid(this)">
   <input type="file" id="aIn" accept="audio/*" hidden onchange="addAud(this)">
-  <input type="file" id="v2aIn" accept="video/*" hidden onchange="addAud(this)">
 
-  <h3>Filtros de Imagem</h3>
+  <h3>Transformação</h3>
   <div class="card">
+    <div class="controls-grid">
+      <button onclick="rotateVid()">🔄 Girar 90°</button>
+      <button onclick="flipVid()">↔️ Espelhar</button>
+    </div>
+    <div class="slider-group" style="margin-top:15px">
+      <label>Zoom <span>(Escala)</span></label>
+      <input type="range" id="zm" min="1" max="2" step="0.1" value="1" oninput="apply()">
+    </div>
+  </div>
+
+  <h3>Ajustes e Filtros</h3>
+  <div class="card">
+    <div class="filter-chips">
+      <div class="chip" onclick="setPreset(100, 100, 0, 0)">Original</div>
+      <div class="chip" onclick="setPreset(110, 0, 100, 0)">P&B</div>
+      <div class="chip" onclick="setPreset(90, 150, 0, 40)">Sépia</div>
+      <div class="chip" onclick="setPreset(100, 100, 0, 0, 100)">Inverter</div>
+    </div>
+    
     <div class="slider-group">
       <label>Brilho</label>
       <input type="range" id="br" min="0" max="200" value="100" oninput="apply()">
@@ -168,44 +167,83 @@
       <input type="range" id="st" min="0" max="200" value="100" oninput="apply()">
     </div>
     <div class="slider-group">
-      <label>Cinza</label>
-      <input type="range" id="gr" min="0" max="100" value="0" oninput="apply()">
-    </div>
-    <div class="slider-group">
-      <label>Velocidade</label>
-      <input type="range" id="sp" min="0.5" max="2" step="0.1" value="1" oninput="apply()">
+      <label>Volume do Vídeo</label>
+      <input type="range" id="vv" min="0" max="1" step="0.1" value="1" oninput="apply()">
     </div>
   </div>
 
-  <h3>Trilhas Sonoras</h3>
-  <div id="tracks"></div>
+  <h3>Trilhas</h3>
+  <div id="tracks" class="card">
+    <p style="font-size:12px; color: #666; text-align:center;">Nenhum áudio extra adicionado.</p>
+  </div>
 </div>
 
 <script>
   const video = document.getElementById('video');
+  let rotation = 0;
+  let flip = 1;
   let mediaRec;
   let chunks = [];
 
   function apply() {
     const br = document.getElementById('br').value;
     const st = document.getElementById('st').value;
-    const gr = document.getElementById('gr').value;
-    const sp = document.getElementById('sp').value;
+    const zm = document.getElementById('zm').value;
+    const vv = document.getElementById('vv').value;
+    const inv = video.dataset.invert || 0;
+
+    // Filtros
+    video.style.filter = `brightness(${br}%) saturate(${st}%) invert(${inv}%)`;
     
-    video.style.filter = `brightness(${br}%) saturate(${st}%) grayscale(${gr}%)`;
-    video.playbackRate = sp;
+    // Transformações
+    video.style.transform = `rotate(${rotation}deg) scale(${flip * zm}, ${zm})`;
+    
+    // Áudio
+    video.volume = vv;
+
     saveState();
   }
 
+  function rotateVid() {
+    rotation = (rotation + 90) % 360;
+    apply();
+  }
+
+  function flipVid() {
+    flip = flip === 1 ? -1 : 1;
+    apply();
+  }
+
+  function setPreset(br, st, gr, sepia, inv = 0) {
+    document.getElementById('br').value = br;
+    document.getElementById('st').value = st;
+    video.dataset.invert = inv;
+    apply();
+  }
+
+  function resetAll() {
+    rotation = 0;
+    flip = 1;
+    document.getElementById('br').value = 100;
+    document.getElementById('st').value = 100;
+    document.getElementById('zm').value = 1;
+    document.getElementById('vv').value = 1;
+    video.dataset.invert = 0;
+    apply();
+  }
+
   function loadVid(input) {
-    if (input.files && input.files[0]) {
+    if (input.files[0]) {
       video.src = URL.createObjectURL(input.files[0]);
-      apply();
+      video.onloadedmetadata = () => apply();
     }
   }
 
   function addAud(input) {
-    if (!input.files || !input.files[0]) return;
+    if (!input.files[0]) return;
+    const tracksContainer = document.getElementById('tracks');
+    if (tracksContainer.querySelector('p')) tracksContainer.innerHTML = '';
+
     const file = input.files[0];
     const url = URL.createObjectURL(file);
     const id = 'aud' + Date.now();
@@ -213,71 +251,66 @@
     const div = document.createElement('div');
     div.className = 'track';
     div.innerHTML = `
-      <span>🎵 ${file.name.substring(0,20)}</span>
+      <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+        <span style="font-size:11px">🎵 ${file.name.substring(0,15)}...</span>
+      </div>
       <audio id="${id}" src="${url}"></audio>
-      <input type="range" min="0" max="1" step="0.1" value="1" oninput="document.getElementById('${id}').volume=this.value">
+      <input type="range" min="0" max="1" step="0.1" value="0.8" oninput="document.getElementById('${id}').volume=this.value">
     `;
-    document.getElementById('tracks').appendChild(div);
+    tracksContainer.appendChild(div);
   }
 
   async function toggleRec() {
     const btn = document.getElementById('recBtn');
     if (!mediaRec || mediaRec.state === 'inactive') {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRec = new MediaRecorder(stream);
-        chunks = [];
-        mediaRec.ondataavailable = e => chunks.push(e.data);
-        mediaRec.onstop = () => {
-          const blob = new Blob(chunks, { type: 'audio/ogg' });
-          addAud({ files: [new File([blob], "Gravacao_" + Date.now() + ".ogg")] });
-        };
-        mediaRec.start();
-        btn.innerText = "🛑 Parar Gravação";
-        btn.style.background = "#ffcc00";
-        btn.style.color = "#000";
-      } catch (err) {
-        alert("Erro ao acessar microfone!");
-      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRec = new MediaRecorder(stream);
+      chunks = [];
+      mediaRec.ondataavailable = e => chunks.push(e.data);
+      mediaRec.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/ogg' });
+        addAud({ files: [new File([blob], "Voz.ogg")] });
+      };
+      mediaRec.start();
+      btn.innerText = "🛑 Parar";
+      btn.style.background = "orange";
     } else {
       mediaRec.stop();
       btn.innerText = "🎤 Gravar Voz";
       btn.style.background = "var(--primary)";
-      btn.style.color = "white";
     }
   }
 
-  // Sincronização Perfeita
+  // Sincronização
   video.onplay = () => document.querySelectorAll('audio').forEach(a => a.play());
   video.onpause = () => document.querySelectorAll('audio').forEach(a => a.pause());
-  video.onseeking = () => document.querySelectorAll('audio').forEach(a => a.currentTime = video.currentTime);
+  video.onseeking = () => document.querySelectorAll('audio').forEach(a => {
+    a.currentTime = video.currentTime;
+  });
 
   function saveState() {
     const state = {
         br: document.getElementById('br').value,
         st: document.getElementById('st').value,
-        gr: document.getElementById('gr').value,
-        sp: document.getElementById('sp').value,
+        zm: document.getElementById('zm').value,
+        rot: rotation,
+        flp: flip,
         time: video.currentTime
     };
-    localStorage.setItem('mobileEditorV2', JSON.stringify(state));
+    localStorage.setItem('mobileEditorV3', JSON.stringify(state));
   }
 
   window.onload = () => {
-    const s = JSON.parse(localStorage.getItem('mobileEditorV2'));
+    const s = JSON.parse(localStorage.getItem('mobileEditorV3'));
     if(s) {
         document.getElementById('br').value = s.br;
         document.getElementById('st').value = s.st;
-        document.getElementById('gr').value = s.gr;
-        document.getElementById('sp').value = s.sp;
+        document.getElementById('zm').value = s.zm;
+        rotation = s.rot || 0;
+        flip = s.flp || 1;
         video.currentTime = s.time || 0;
         apply();
     }
-  };
-  
-  // Salva o tempo do vídeo periodicamente
-  video.ontimeupdate = () => {
-    if (Math.floor(video.currentTime) % 2 === 0) saveState();
   };
 </script>
 </body>
