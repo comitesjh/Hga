@@ -3,314 +3,136 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flash Editor Ultra</title>
+  <title>Flash Editor Render</title>
   <style>
-    :root {
-      --primary: #ff0055;
-      --secondary: #00f2ff;
-      --bg: #0a0a0c;
-      --card: rgba(255, 255, 255, 0.05);
-    }
-
-    body { 
-      font-family: 'Segoe UI', sans-serif; 
-      background: var(--bg); 
-      color: white; 
-      margin: 0; 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .canvas-area { 
-      position: sticky; 
-      top: 0; 
-      background: var(--bg); 
-      padding: 15px; 
-      z-index: 100; 
-      width: 100%;
-      box-sizing: border-box;
-      text-align: center;
-    }
-
-    .video-container {
-      overflow: hidden;
-      border-radius: 15px;
-      border: 2px solid var(--primary);
-      max-width: 600px;
-      margin: 0 auto;
-      line-height: 0;
-    }
-
-    video { 
-      width: 100%; 
-      transition: transform 0.3s ease;
-    }
-
-    .scroll-area { 
-      padding: 20px; 
-      width: 100%;
-      max-width: 600px;
-      box-sizing: border-box;
-    }
-
-    .card {
-      background: var(--card);
-      backdrop-filter: blur(10px);
-      padding: 15px;
-      border-radius: 15px;
-      border: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 20px;
-    }
-
-    .controls-grid { 
-      display: grid; 
-      grid-template-columns: repeat(2, 1fr); 
-      gap: 10px; 
-    }
-
-    button { 
-      padding: 12px; 
-      border: none; 
-      border-radius: 10px; 
-      font-weight: bold; 
-      cursor: pointer; 
-      background: #222; 
-      color: white;
-      font-size: 13px;
-    }
-
-    button:active { transform: scale(0.95); }
-    .btn-main { background: var(--primary); }
-    .btn-alt { background: #333; border: 1px solid var(--secondary); }
-
-    .slider-group { margin-bottom: 12px; }
-    .slider-group label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; color: #aaa; }
+    :root { --p: #ff0055; --s: #00f2ff; --bg: #0a0a0c; }
+    body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; padding-bottom: 50px; }
+    .canvas-area { position: sticky; top: 0; background: var(--bg); padding: 15px; z-index: 100; text-align: center; }
     
-    input[type="range"] { 
+    /* O Canvas é onde a mágica acontece */
+    canvas { 
       width: 100%; 
-      accent-color: var(--primary);
+      max-width: 500px; 
+      border-radius: 15px; 
+      border: 2px solid var(--p);
+      background: #000;
     }
 
-    .filter-chips {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-    }
-
-    .chip {
-      padding: 6px 15px;
-      background: #333;
-      border-radius: 20px;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .track { 
-      background: rgba(0, 242, 255, 0.05); 
-      padding: 10px; 
-      margin-top: 8px; 
-      border-radius: 10px; 
-      border-left: 3px solid var(--secondary);
-    }
+    .scroll-area { padding: 20px; max-width: 600px; margin: auto; }
+    .card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    
+    button { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; background: #222; color: white; }
+    .btn-export { background: linear-gradient(45deg, var(--p), #ff00ff); grid-column: span 2; margin-top: 10px; }
+    
+    input[type="range"] { width: 100%; accent-color: var(--p); }
+    label { font-size: 12px; color: #aaa; display: block; margin-top: 10px; }
+    video#vHidden { display: none; } /* Vídeo original escondido */
   </style>
 </head>
 <body>
 
 <div class="canvas-area">
-  <div class="video-container">
-    <video id="video" controls></video>
-  </div>
+  <canvas id="ctx"></canvas>
+  <video id="vHidden" crossorigin="anonymous"></video>
 </div>
 
 <div class="scroll-area">
   <div class="card">
-    <div class="controls-grid">
-      <button onclick="document.getElementById('vIn').click()">🎥 Add Vídeo</button>
-      <button onclick="document.getElementById('aIn').click()">🎵 Add Áudio</button>
-      <button id="recBtn" class="btn-main" onclick="toggleRec()">🎤 Gravar Voz</button>
-      <button class="btn-alt" onclick="resetAll()">🔄 Resetar Tudo</button>
+    <div class="grid">
+      <button onclick="document.getElementById('vIn').click()">🎥 Vídeo</button>
+      <button onclick="document.getElementById('aIn').click()">🎵 Áudio</button>
+      <button id="exportBtn" class="btn-export" onclick="exportVideo()">📥 Baixar Vídeo Editado</button>
     </div>
   </div>
 
   <input type="file" id="vIn" accept="video/*" hidden onchange="loadVid(this)">
   <input type="file" id="aIn" accept="audio/*" hidden onchange="addAud(this)">
 
-  <h3>Transformação</h3>
+  <h3>Edição em Tempo Real</h3>
   <div class="card">
-    <div class="controls-grid">
-      <button onclick="rotateVid()">🔄 Girar 90°</button>
-      <button onclick="flipVid()">↔️ Espelhar</button>
-    </div>
-    <div class="slider-group" style="margin-top:15px">
-      <label>Zoom <span>(Escala)</span></label>
-      <input type="range" id="zm" min="1" max="2" step="0.1" value="1" oninput="apply()">
-    </div>
-  </div>
-
-  <h3>Ajustes e Filtros</h3>
-  <div class="card">
-    <div class="filter-chips">
-      <div class="chip" onclick="setPreset(100, 100, 0, 0)">Original</div>
-      <div class="chip" onclick="setPreset(110, 0, 100, 0)">P&B</div>
-      <div class="chip" onclick="setPreset(90, 150, 0, 40)">Sépia</div>
-      <div class="chip" onclick="setPreset(100, 100, 0, 0, 100)">Inverter</div>
-    </div>
+    <label>Brilho</label>
+    <input type="range" id="br" min="0" max="200" value="100">
     
-    <div class="slider-group">
-      <label>Brilho</label>
-      <input type="range" id="br" min="0" max="200" value="100" oninput="apply()">
+    <label>Saturação</label>
+    <input type="range" id="st" min="0" max="200" value="100">
+    
+    <label>Zoom & Rotação</label>
+    <div class="grid">
+        <button onclick="rot += 90">🔄 Girar</button>
+        <button onclick="z = (z === 1 ? 1.5 : 1)">🔍 Zoom</button>
     </div>
-    <div class="slider-group">
-      <label>Saturação</label>
-      <input type="range" id="st" min="0" max="200" value="100" oninput="apply()">
-    </div>
-    <div class="slider-group">
-      <label>Volume do Vídeo</label>
-      <input type="range" id="vv" min="0" max="1" step="0.1" value="1" oninput="apply()">
-    </div>
-  </div>
-
-  <h3>Trilhas</h3>
-  <div id="tracks" class="card">
-    <p style="font-size:12px; color: #666; text-align:center;">Nenhum áudio extra adicionado.</p>
   </div>
 </div>
 
 <script>
-  const video = document.getElementById('video');
-  let rotation = 0;
-  let flip = 1;
-  let mediaRec;
-  let chunks = [];
+  const canvas = document.getElementById('ctx');
+  const c = canvas.getContext('2d');
+  const v = document.getElementById('vHidden');
+  let rot = 0, z = 1;
 
-  function apply() {
-    const br = document.getElementById('br').value;
-    const st = document.getElementById('st').value;
-    const zm = document.getElementById('zm').value;
-    const vv = document.getElementById('vv').value;
-    const inv = video.dataset.invert || 0;
-
-    // Filtros
-    video.style.filter = `brightness(${br}%) saturate(${st}%) invert(${inv}%)`;
+  // Loop de desenho (Renderiza os filtros no Canvas)
+  function draw() {
+    canvas.width = v.videoWidth || 640;
+    canvas.height = v.videoHeight || 360;
     
-    // Transformações
-    video.style.transform = `rotate(${rotation}deg) scale(${flip * zm}, ${zm})`;
+    c.save();
+    // Aplica Filtros
+    c.filter = `brightness(${document.getElementById('br').value}%) saturate(${document.getElementById('st').value}%)`;
     
-    // Áudio
-    video.volume = vv;
-
-    saveState();
-  }
-
-  function rotateVid() {
-    rotation = (rotation + 90) % 360;
-    apply();
-  }
-
-  function flipVid() {
-    flip = flip === 1 ? -1 : 1;
-    apply();
-  }
-
-  function setPreset(br, st, gr, sepia, inv = 0) {
-    document.getElementById('br').value = br;
-    document.getElementById('st').value = st;
-    video.dataset.invert = inv;
-    apply();
-  }
-
-  function resetAll() {
-    rotation = 0;
-    flip = 1;
-    document.getElementById('br').value = 100;
-    document.getElementById('st').value = 100;
-    document.getElementById('zm').value = 1;
-    document.getElementById('vv').value = 1;
-    video.dataset.invert = 0;
-    apply();
+    // Aplica Transformações
+    c.translate(canvas.width/2, canvas.height/2);
+    c.rotate(rot * Math.PI / 180);
+    c.scale(z, z);
+    c.drawImage(v, -canvas.width/2, -canvas.height/2, canvas.width, canvas.height);
+    
+    c.restore();
+    requestAnimationFrame(draw);
   }
 
   function loadVid(input) {
-    if (input.files[0]) {
-      video.src = URL.createObjectURL(input.files[0]);
-      video.onloadedmetadata = () => apply();
-    }
+    v.src = URL.createObjectURL(input.files[0]);
+    v.play();
+    draw();
   }
 
-  function addAud(input) {
-    if (!input.files[0]) return;
-    const tracksContainer = document.getElementById('tracks');
-    if (tracksContainer.querySelector('p')) tracksContainer.innerHTML = '';
-
-    const file = input.files[0];
-    const url = URL.createObjectURL(file);
-    const id = 'aud' + Date.now();
+  async function exportVideo() {
+    const btn = document.getElementById('exportBtn');
+    btn.innerText = "⏺️ Gravando... Aguarde o fim do vídeo";
     
-    const div = document.createElement('div');
-    div.className = 'track';
-    div.innerHTML = `
-      <div style="display:flex; justify-content:space-between; margin-bottom:5px">
-        <span style="font-size:11px">🎵 ${file.name.substring(0,15)}...</span>
-      </div>
-      <audio id="${id}" src="${url}"></audio>
-      <input type="range" min="0" max="1" step="0.1" value="0.8" oninput="document.getElementById('${id}').volume=this.value">
-    `;
-    tracksContainer.appendChild(div);
-  }
+    const stream = canvas.captureStream(30); // Captura 30 FPS do Canvas
+    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+    const chunks = [];
 
-  async function toggleRec() {
-    const btn = document.getElementById('recBtn');
-    if (!mediaRec || mediaRec.state === 'inactive') {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRec = new MediaRecorder(stream);
-      chunks = [];
-      mediaRec.ondataavailable = e => chunks.push(e.data);
-      mediaRec.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/ogg' });
-        addAud({ files: [new File([blob], "Voz.ogg")] });
-      };
-      mediaRec.start();
-      btn.innerText = "🛑 Parar";
-      btn.style.background = "orange";
-    } else {
-      mediaRec.stop();
-      btn.innerText = "🎤 Gravar Voz";
-      btn.style.background = "var(--primary)";
-    }
-  }
-
-  // Sincronização
-  video.onplay = () => document.querySelectorAll('audio').forEach(a => a.play());
-  video.onpause = () => document.querySelectorAll('audio').forEach(a => a.pause());
-  video.onseeking = () => document.querySelectorAll('audio').forEach(a => {
-    a.currentTime = video.currentTime;
-  });
-
-  function saveState() {
-    const state = {
-        br: document.getElementById('br').value,
-        st: document.getElementById('st').value,
-        zm: document.getElementById('zm').value,
-        rot: rotation,
-        flp: flip,
-        time: video.currentTime
+    recorder.ondataavailable = e => chunks.push(e.data);
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'meu-video-editado.webm';
+      a.click();
+      btn.innerText = "📥 Baixar Vídeo Editado";
     };
-    localStorage.setItem('mobileEditorV3', JSON.stringify(state));
+
+    v.currentTime = 0;
+    v.play();
+    recorder.start();
+
+    v.onended = () => {
+      recorder.stop();
+      v.onended = null;
+    };
   }
+
+  // Persistência simples
+  v.ontimeupdate = () => {
+    localStorage.setItem('editorTime', v.currentTime);
+  };
 
   window.onload = () => {
-    const s = JSON.parse(localStorage.getItem('mobileEditorV3'));
-    if(s) {
-        document.getElementById('br').value = s.br;
-        document.getElementById('st').value = s.st;
-        document.getElementById('zm').value = s.zm;
-        rotation = s.rot || 0;
-        flip = s.flp || 1;
-        video.currentTime = s.time || 0;
-        apply();
-    }
+    const savedTime = localStorage.getItem('editorTime');
+    if(savedTime) v.currentTime = savedTime;
   };
 </script>
 </body>
